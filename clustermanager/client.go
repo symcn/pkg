@@ -82,7 +82,7 @@ func (c *client) preCheck() error {
 		if len(c.SetKubeRestConfigFnList) == 0 {
 			c.SetKubeRestConfigFnList = []api.SetKubeRestConfig{}
 		}
-		klog.Infof("cluster %s connection use QPS %d and Burst %d", c.QPS, c.Burst)
+		klog.Infof("cluster %s connection use QPS %d and Burst %d", c.clusterCfg.GetName(), c.QPS, c.Burst)
 		c.SetKubeRestConfigFnList = append(c.SetKubeRestConfigFnList, func(config *rest.Config) {
 			config.QPS = float32(c.QPS)
 			config.Burst = c.Burst
