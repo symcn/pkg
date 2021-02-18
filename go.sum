@@ -352,8 +352,8 @@ github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5
 github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd0=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
-github.com/symcn/api v0.0.0-20210218024701-40d0cff6c440 h1:5ynHrFjltwtpbEHY7V/gNzb5jKmWsOGAqolMo8wIarw=
-github.com/symcn/api v0.0.0-20210218024701-40d0cff6c440/go.mod h1:gvMZiK4QsHgHihLmBwvapnzF271C8THa8lF+BihxP2o=
+github.com/symcn/api v0.0.0-20210218090737-40ad8dd918ab h1:RarNGjxpGQ0uNm7E/6WWiIo6oSdYRF/v9JVDQ6QG698=
+github.com/symcn/api v0.0.0-20210218090737-40ad8dd918ab/go.mod h1:gvMZiK4QsHgHihLmBwvapnzF271C8THa8lF+BihxP2o=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
@@ -691,8 +691,9 @@ rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.14/go.mod h1:LEScyzhFmoF5pso/YSeBstl57mOzx9xlU9n85RGrDQg=
-sigs.k8s.io/controller-runtime v0.8.1 h1:O0K2CJ2JavK8/Tf4LfcpAwRxOFBhv8DjyrbmE6Qw59s=
 sigs.k8s.io/controller-runtime v0.8.1/go.mod h1:U/l+DUopBc1ecfRZ5aviA9JDmGFQKvLf5YkZNx2e0sU=
+sigs.k8s.io/controller-runtime v0.8.2 h1:SBWmI0b3uzMIUD/BIXWNegrCeZmPJ503pOtwxY0LPHM=
+sigs.k8s.io/controller-runtime v0.8.2/go.mod h1:U/l+DUopBc1ecfRZ5aviA9JDmGFQKvLf5YkZNx2e0sU=
 sigs.k8s.io/structured-merge-diff/v4 v4.0.2 h1:YHQV7Dajm86OuqnIR6zAelnDWBRjo+YhYV9PmGrh1s8=
 sigs.k8s.io/structured-merge-diff/v4 v4.0.2/go.mod h1:bJZC9H9iH24zzfZ/41RGcq60oK1F7G282QMXDPYydCw=
 sigs.k8s.io/yaml v1.1.0/go.mod h1:UJmg0vDUVViEyp3mgSv9WPwZCDxu4rQW1olrI1uml+o=

@@ -57,11 +57,11 @@ func (q *Queue) Add(item interface{}) {
 	q.workqueue.Add(item)
 }
 
-// Run will set up the event handlers for types we are interested in, as well
+// Start will set up the event handlers for types we are interested in, as well
 // as syncing informer caches and starting workers. It will block until stopCh
 // is closed, at which point it will shutdown the workqueue and wait for
 // workers to finish processing their current work items.
-func (q *Queue) Run(ctx context.Context) error {
+func (q *Queue) Start(ctx context.Context) error {
 	defer utilruntime.HandleCrash()
 	defer q.workqueue.ShutDown()
 
