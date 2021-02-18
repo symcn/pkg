@@ -67,9 +67,22 @@ func (c *client) preCheck() error {
 		return errors.New("scheme is empty")
 	}
 
+	// exectimeout check
 	if c.Options.ExecTimeout < minExectimeout {
 		klog.Warningf("exectimeout should lager than 100ms, too small will return timeout mostly, use default %v", defaultExecTimeout)
 		c.Options.ExecTimeout = defaultExecTimeout
+	}
+
+	// set QPS and Burst
+	if c.QPS > 0 && c.Burst > 0 {
+		if len(c.SetKubeRestConfigFnList) == 0 {
+			c.SetKubeRestConfigFnList = []api.SetKubeRestConfig{}
+		}
+		klog.Infof("Use QPS %d and Burst %d", c.QPS, c.Burst)
+		c.SetKubeRestConfigFnList = append(c.SetKubeRestConfigFnList, func(config *rest.Config) {
+			config.QPS = float32(c.QPS)
+			config.Burst = c.Burst
+		})
 	}
 
 	return nil

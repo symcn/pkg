@@ -7,7 +7,6 @@ import (
 	"github.com/symcn/pkg/clustermanager/configuration"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/rest"
 )
 
 var (
@@ -37,6 +36,8 @@ type Options struct {
 	SyncPeriod              time.Duration
 	HealthCheckInterval     time.Duration
 	ExecTimeout             time.Duration
+	QPS                     int
+	Burst                   int
 	SetKubeRestConfigFnList []api.SetKubeRestConfig
 }
 
@@ -70,11 +71,13 @@ func DefaultOptions(scheme *runtime.Scheme, qps, burst int) *Options {
 		SyncPeriod:          defaultSyncPeriod,
 		HealthCheckInterval: defaultHealthCheckInterval,
 		ExecTimeout:         defaultExecTimeout,
-		SetKubeRestConfigFnList: []api.SetKubeRestConfig{
-			func(config *rest.Config) {
-				config.QPS = float32(qps)
-				config.Burst = burst
-			},
-		},
+		QPS:                 qps,
+		Burst:               burst,
+		// SetKubeRestConfigFnList: []api.SetKubeRestConfig{
+		//     func(config *rest.Config) {
+		//         config.QPS = float32(qps)
+		//         config.Burst = burst
+		//     },
+		// },
 	}
 }
