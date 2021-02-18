@@ -74,7 +74,7 @@ func (q *Queue) Start(ctx context.Context) error {
 
 	klog.Infof("Started %s WrapQueue workers", q.name)
 	<-ctx.Done()
-	klog.Info("Shutting down WrapQueue")
+	klog.Infof("Shutting down %s WrapQueue workers", q.name)
 	return nil
 }
 
