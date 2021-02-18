@@ -48,7 +48,7 @@ func TestNewQueueException(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.TODO())
 		defer cancel()
 		go func() {
-			queue.Run(ctx)
+			queue.Start(ctx)
 		}()
 
 		queue.Add(ktypes.NamespacedName{Namespace: "default", Name: "mock error"})
@@ -65,7 +65,7 @@ func TestNewQueueException(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.TODO())
 		defer cancel()
 		go func() {
-			queue.Run(ctx)
+			queue.Start(ctx)
 		}()
 
 		queue.Add(ktypes.NamespacedName{Namespace: "default", Name: "mock error"})
@@ -82,7 +82,7 @@ func TestNewQueueException(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.TODO())
 		defer cancel()
 		go func() {
-			queue.Run(ctx)
+			queue.Start(ctx)
 		}()
 
 		queue.Add(ktypes.NamespacedName{Namespace: "default", Name: "mock error"})
@@ -99,7 +99,7 @@ func TestNewQueueException(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.TODO())
 		defer cancel()
 		go func() {
-			queue.Run(ctx)
+			queue.Start(ctx)
 		}()
 
 		queue.Add("unexpected_type")
@@ -115,7 +115,7 @@ func TestNewQueueException(t *testing.T) {
 		}
 		ctx, cancel := context.WithCancel(context.TODO())
 		go func() {
-			queue.Run(ctx)
+			queue.Start(ctx)
 		}()
 		queue.Add(ktypes.NamespacedName{Namespace: "default", Name: "mock error"})
 		cancel()
@@ -139,7 +139,7 @@ func TestNewMetrics(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
 	go func() {
-		queue.Run(ctx)
+		queue.Start(ctx)
 	}()
 
 	for i := 0; i < count; i++ {

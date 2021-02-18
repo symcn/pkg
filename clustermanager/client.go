@@ -57,6 +57,10 @@ func NewMingleClient(clusterCfg api.ClusterCfgInfo, opt *Options) (api.MingleCli
 }
 
 func (c *client) preCheck() error {
+	if c.Options == nil {
+		return errors.New("options is empty")
+	}
+
 	// clusterconfig and cluster name must not empty
 	if c.clusterCfg == nil || c.clusterCfg.GetName() == "" {
 		return errors.New("cluster info is empty or cluster name is empty")
@@ -78,7 +82,7 @@ func (c *client) preCheck() error {
 		if len(c.SetKubeRestConfigFnList) == 0 {
 			c.SetKubeRestConfigFnList = []api.SetKubeRestConfig{}
 		}
-		klog.Infof("Use QPS %d and Burst %d", c.QPS, c.Burst)
+		klog.Infof("cluster %s connection use QPS %d and Burst %d", c.QPS, c.Burst)
 		c.SetKubeRestConfigFnList = append(c.SetKubeRestConfigFnList, func(config *rest.Config) {
 			config.QPS = float32(c.QPS)
 			config.Burst = c.Burst

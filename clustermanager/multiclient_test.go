@@ -76,7 +76,7 @@ func TestNewMultiClient(t *testing.T) {
 
 	ch := make(chan struct{}, 0)
 	go func() {
-		err = queue.Run(ctx)
+		err = queue.Start(ctx)
 		if err != nil {
 			t.Error(err)
 		}
