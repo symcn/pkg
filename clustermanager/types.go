@@ -3,8 +3,8 @@ package clustermanager
 import (
 	"time"
 
+	"github.com/symcn/api"
 	"github.com/symcn/pkg/clustermanager/configuration"
-	"github.com/symcn/pkg/types"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
@@ -37,12 +37,12 @@ type Options struct {
 	SyncPeriod              time.Duration
 	HealthCheckInterval     time.Duration
 	ExecTimeout             time.Duration
-	SetKubeRestConfigFnList []types.SetKubeRestConfig
+	SetKubeRestConfigFnList []api.SetKubeRestConfig
 }
 
 // DefaultClusterCfgInfo default clusterCfgInfo
 // kubeconfig use default ~/.kube/config or Kubernetes cluster internal config
-func DefaultClusterCfgInfo(clusterName string) types.ClusterCfgInfo {
+func DefaultClusterCfgInfo(clusterName string) api.ClusterCfgInfo {
 	if clusterName == "" {
 		clusterName = defaultClusterName
 	}
@@ -70,7 +70,7 @@ func DefaultOptions(scheme *runtime.Scheme, qps, burst int) *Options {
 		SyncPeriod:          defaultSyncPeriod,
 		HealthCheckInterval: defaultHealthCheckInterval,
 		ExecTimeout:         defaultExecTimeout,
-		SetKubeRestConfigFnList: []types.SetKubeRestConfig{
+		SetKubeRestConfigFnList: []api.SetKubeRestConfig{
 			func(config *rest.Config) {
 				config.QPS = float32(qps)
 				config.Burst = burst

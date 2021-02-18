@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/symcn/pkg/types"
+	"github.com/symcn/api"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
@@ -18,9 +18,8 @@ import (
 
 type client struct {
 	*Options
-	clusterCfg types.ClusterCfgInfo
-	// *ClientOptions
 
+	clusterCfg     api.ClusterCfgInfo
 	stopCh         chan struct{}
 	connected      bool
 	started        bool
@@ -35,8 +34,8 @@ type client struct {
 	ctrlRtClient  rtclient.Client
 }
 
-// NewMingleClient build types.MingleClient
-func NewMingleClient(clusterCfg types.ClusterCfgInfo, opt *Options) (types.MingleClient, error) {
+// NewMingleClient build api.MingleClient
+func NewMingleClient(clusterCfg api.ClusterCfgInfo, opt *Options) (api.MingleClient, error) {
 	cli := &client{
 		Options:      opt,
 		clusterCfg:   clusterCfg,
@@ -185,6 +184,6 @@ func (c *client) IsConnected() bool {
 }
 
 // GetClusterCfgInfo returns cluster configuration info
-func (c *client) GetClusterCfgInfo() types.ClusterCfgInfo {
+func (c *client) GetClusterCfgInfo() api.ClusterCfgInfo {
 	return c.clusterCfg
 }

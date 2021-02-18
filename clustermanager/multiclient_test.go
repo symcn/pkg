@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/symcn/api"
 	"github.com/symcn/pkg/clustermanager/configuration"
 	"github.com/symcn/pkg/clustermanager/predicate"
 	"github.com/symcn/pkg/clustermanager/workqueue"
-	"github.com/symcn/pkg/types"
 	corev1 "k8s.io/api/core/v1"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	rtclient "sigs.k8s.io/controller-runtime/pkg/client"
@@ -55,7 +55,7 @@ func TestNewMultiClient(t *testing.T) {
 	//     t.Error(err)
 	//     return
 	// }
-	multiCli.RegistryBeforAfterHandler(func(cli types.MingleClient) error {
+	multiCli.RegistryBeforAfterHandler(func(cli api.MingleClient) error {
 		eventHandler := &mockEventHandler{}
 		err := cli.Watch(&corev1.Pod{}, queue, eventHandler, predicate.NamespacePredicate("*"))
 		if err != nil {
@@ -108,15 +108,15 @@ func TestNewMultiClient(t *testing.T) {
 type reconcile struct {
 }
 
-func (r *reconcile) Reconcile(req ktypes.NamespacedName) (requeue types.NeedRequeue, after time.Duration, err error) {
+func (r *reconcile) Reconcile(req ktypes.NamespacedName) (requeue api.NeedRequeue, after time.Duration, err error) {
 	fmt.Println(req.String())
-	return types.Done, 0, nil
+	return api.Done, 0, nil
 }
 
 type mockEventHandler struct {
 }
 
-func (t *mockEventHandler) Create(obj rtclient.Object, queue types.WorkQueue) {
+func (t *mockEventHandler) Create(obj rtclient.Object, queue api.WorkQueue) {
 	// gvks, b, err := mockOpt.Scheme.ObjectKinds(obj)
 	// if err != nil {
 	//     fmt.Println(err)
@@ -131,11 +131,11 @@ func (t *mockEventHandler) Create(obj rtclient.Object, queue types.WorkQueue) {
 	queue.Add(ktypes.NamespacedName{Name: obj.GetName(), Namespace: obj.GetNamespace()})
 }
 
-func (t *mockEventHandler) Update(oldObj, newObj rtclient.Object, queue types.WorkQueue) {
+func (t *mockEventHandler) Update(oldObj, newObj rtclient.Object, queue api.WorkQueue) {
 }
 
-func (t *mockEventHandler) Delete(obj rtclient.Object, queue types.WorkQueue) {
+func (t *mockEventHandler) Delete(obj rtclient.Object, queue api.WorkQueue) {
 }
 
-func (t *mockEventHandler) Generic(obj rtclient.Object, queue types.WorkQueue) {
+func (t *mockEventHandler) Generic(obj rtclient.Object, queue api.WorkQueue) {
 }

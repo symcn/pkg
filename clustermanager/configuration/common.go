@@ -1,16 +1,16 @@
 package configuration
 
-import "github.com/symcn/pkg/types"
+import "github.com/symcn/api"
 
 type clusterCfgInfo struct {
 	name           string
-	kubeConfigType types.KubeConfigType
+	kubeConfigType api.KubeConfigType
 	kubeConfig     string
 	kubeContext    string
 }
 
-// BuildClusterCfgInfo build types.ClusterCfgInfo
-func BuildClusterCfgInfo(name string, kubeConfigType types.KubeConfigType, kubeConfig string, kubeContext string) types.ClusterCfgInfo {
+// BuildClusterCfgInfo build api.ClusterCfgInfo
+func BuildClusterCfgInfo(name string, kubeConfigType api.KubeConfigType, kubeConfig string, kubeContext string) api.ClusterCfgInfo {
 	return &clusterCfgInfo{
 		name:           name,
 		kubeConfigType: kubeConfigType,
@@ -23,7 +23,7 @@ func (c *clusterCfgInfo) GetName() string {
 	return c.name
 }
 
-func (c *clusterCfgInfo) GetKubeConfigType() types.KubeConfigType {
+func (c *clusterCfgInfo) GetKubeConfigType() api.KubeConfigType {
 	return c.kubeConfigType
 }
 
@@ -37,6 +37,6 @@ func (c *clusterCfgInfo) GetKubeContext() string {
 
 // BuildDefaultClusterCfgInfo BuildDefaultClusterCfgInfo with default Kubernetes configuration
 // use default ~/.kube/config or Kubernetes cluster internal config
-func BuildDefaultClusterCfgInfo(name string) types.ClusterCfgInfo {
-	return BuildClusterCfgInfo(name, types.KubeConfigTypeFile, "", "")
+func BuildDefaultClusterCfgInfo(name string) api.ClusterCfgInfo {
+	return BuildClusterCfgInfo(name, api.KubeConfigTypeFile, "", "")
 }

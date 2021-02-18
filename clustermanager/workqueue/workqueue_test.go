@@ -9,29 +9,29 @@ import (
 	"testing"
 	"time"
 
+	"github.com/symcn/api"
 	"github.com/symcn/pkg/metrics"
-	"github.com/symcn/pkg/types"
 	ktypes "k8s.io/apimachinery/pkg/types"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 type reconcileException struct {
 	done    chan struct{}
 	count   int
-	requeue types.NeedRequeue
+	requeue api.NeedRequeue
 	after   time.Duration
 	sleep   time.Duration
 	err     error
 }
 
-func (r *reconcileException) Reconcile(item ktypes.NamespacedName) (types.NeedRequeue, time.Duration, error) {
+func (r *reconcileException) Reconcile(item ktypes.NamespacedName) (api.NeedRequeue, time.Duration, error) {
 	klog.Infof("mock Reconcile:%s", item.String())
 	if r.sleep > 0 {
 		time.Sleep(r.sleep)
 	}
 	if r.count < 1 {
 		close(r.done)
-		return types.Done, 0, nil
+		return api.Done, 0, nil
 	}
 	r.count--
 	return r.requeue, r.after, r.err
@@ -74,7 +74,7 @@ func TestNewQueueException(t *testing.T) {
 
 	t.Run("return requeue", func(t *testing.T) {
 		done := make(chan struct{}, 0)
-		queue, err := NewQueue(&reconcileException{done: done, count: 2, requeue: types.Requeue}, "return_requeue", 1, time.Second)
+		queue, err := NewQueue(&reconcileException{done: done, count: 2, requeue: api.Requeue}, "return_requeue", 1, time.Second)
 		if err != nil {
 			t.Error(err)
 			return
@@ -156,27 +156,27 @@ type reconcile struct {
 	err   error
 }
 
-func (r *reconcile) Reconcile(item ktypes.NamespacedName) (types.NeedRequeue, time.Duration, error) {
+func (r *reconcile) Reconcile(item ktypes.NamespacedName) (api.NeedRequeue, time.Duration, error) {
 	klog.Infof("mock Reconcile:%s", item.String())
 	r.count--
 	if r.count < 1 {
 		if r.count == 0 {
 			close(r.done)
 		}
-		return types.Done, 0, nil
+		return api.Done, 0, nil
 	}
 	switch r.count % 4 {
 	case 0:
-		return types.Requeue, 0, nil
+		return api.Requeue, 0, nil
 	case 1:
-		return types.Done, time.Millisecond * 20, nil
+		return api.Done, time.Millisecond * 20, nil
 	case 2:
-		return types.Done, 0, errors.New("mock error")
+		return api.Done, 0, errors.New("mock error")
 	case 3:
 		time.Sleep(time.Millisecond * 10)
-		return types.Done, 0, nil
+		return api.Done, 0, nil
 	}
-	return types.Done, 0, nil
+	return api.Done, 0, nil
 }
 
 // startHTTPPrometheus start http server with prometheus route

@@ -3,7 +3,7 @@ package predicate
 import (
 	"strings"
 
-	"github.com/symcn/pkg/types"
+	"github.com/symcn/api"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -12,7 +12,7 @@ type predicateNamespace struct {
 }
 
 // NamespacePredicate filter namespace
-func NamespacePredicate(nslist ...string) types.Predicate {
+func NamespacePredicate(nslist ...string) api.Predicate {
 	return &base{
 		handler: func(obj client.Object) bool {
 			for _, ns := range nslist {
@@ -26,7 +26,7 @@ func NamespacePredicate(nslist ...string) types.Predicate {
 }
 
 // LabelsKeyPredicate filter labels key not exists
-func LabelsKeyPredicate(keys ...string) types.Predicate {
+func LabelsKeyPredicate(keys ...string) api.Predicate {
 	return &base{
 		handler: func(obj client.Object) bool {
 			if len(obj.GetLabels()) == 0 {

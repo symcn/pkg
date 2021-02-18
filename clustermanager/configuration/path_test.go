@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/symcn/pkg/types"
+	"github.com/symcn/api"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -17,7 +17,7 @@ var (
 
 func TestNewClusterCfgManagerWithPath(t *testing.T) {
 	t.Run("path not exist", func(t *testing.T) {
-		_, err := NewClusterCfgManagerWithPath("aaa", suffix, types.KubeConfigTypeFile)
+		_, err := NewClusterCfgManagerWithPath("aaa", suffix, api.KubeConfigTypeFile)
 		if err == nil {
 			t.Error("path not exist should be error")
 			return
@@ -25,7 +25,7 @@ func TestNewClusterCfgManagerWithPath(t *testing.T) {
 	})
 
 	t.Run("file", func(t *testing.T) {
-		_, err := NewClusterCfgManagerWithPath("/etc/hosts", suffix, types.KubeConfigTypeFile)
+		_, err := NewClusterCfgManagerWithPath("/etc/hosts", suffix, api.KubeConfigTypeFile)
 		if err == nil {
 			t.Error("file not support should be error")
 			return
@@ -33,7 +33,7 @@ func TestNewClusterCfgManagerWithPath(t *testing.T) {
 	})
 
 	t.Run("open dir fail", func(t *testing.T) {
-		obj, err := NewClusterCfgManagerWithPath("/etc", suffix, types.KubeConfigTypeFile)
+		obj, err := NewClusterCfgManagerWithPath("/etc", suffix, api.KubeConfigTypeFile)
 		if err != nil {
 			t.Error("file not support should be error")
 			return
@@ -52,7 +52,7 @@ func TestNewClusterCfgManagerWithPath(t *testing.T) {
 		num := 3
 		buildTmpWithMockKubeConfig(num)
 
-		cfg, err := NewClusterCfgManagerWithPath(mockKubeConfigDir, "aaaaa", types.KubeConfigTypeFile)
+		cfg, err := NewClusterCfgManagerWithPath(mockKubeConfigDir, "aaaaa", api.KubeConfigTypeFile)
 		if err != nil {
 			t.Error(err)
 			return
@@ -90,7 +90,7 @@ func TestNewClusterCfgManagerWithPath(t *testing.T) {
 		num := 3
 		buildTmpWithMockKubeConfig(num)
 
-		cfg, err := NewClusterCfgManagerWithPath(mockKubeConfigDir, suffix, types.KubeConfigTypeFile)
+		cfg, err := NewClusterCfgManagerWithPath(mockKubeConfigDir, suffix, api.KubeConfigTypeFile)
 		if err != nil {
 			t.Error(err)
 			return
@@ -109,7 +109,7 @@ func TestNewClusterCfgManagerWithPath(t *testing.T) {
 		num := 3
 		buildTmpWithMockKubeConfig(num)
 
-		cfg, err := NewClusterCfgManagerWithPath(mockKubeConfigDir, suffix, types.KubeConfigTypeRawString)
+		cfg, err := NewClusterCfgManagerWithPath(mockKubeConfigDir, suffix, api.KubeConfigTypeRawString)
 		if err != nil {
 			t.Error(err)
 			return

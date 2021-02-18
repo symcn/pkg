@@ -1,20 +1,20 @@
 package handler
 
 import (
-	"github.com/symcn/pkg/types"
+	"github.com/symcn/api"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/klog/v2"
 	rtclient "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type resourceEventHandler struct {
-	Queue        types.WorkQueue
-	EventHandler types.EventHandler
-	Predicates   []types.Predicate
+	Queue        api.WorkQueue
+	EventHandler api.EventHandler
+	Predicates   []api.Predicate
 }
 
 // NewResourceEventHandler build controller-runtime ResourceEventHandler
-func NewResourceEventHandler(queue types.WorkQueue, handler types.EventHandler, predicates ...types.Predicate) cache.ResourceEventHandler {
+func NewResourceEventHandler(queue api.WorkQueue, handler api.EventHandler, predicates ...api.Predicate) cache.ResourceEventHandler {
 	return &resourceEventHandler{Queue: queue, EventHandler: handler, Predicates: predicates}
 }
 

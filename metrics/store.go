@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/symcn/pkg/types"
+	"github.com/symcn/api"
 	"k8s.io/klog/v2"
 )
 
@@ -28,7 +28,7 @@ var (
 
 type store struct {
 	l       sync.RWMutex
-	metrics map[string]types.Metrics
+	metrics map[string]api.Metrics
 }
 
 type metrics struct {
@@ -39,7 +39,7 @@ type metrics struct {
 
 func init() {
 	defaultStore = &store{
-		metrics: make(map[string]types.Metrics, 100),
+		metrics: make(map[string]api.Metrics, 100),
 	}
 }
 
@@ -113,7 +113,7 @@ func resetAll() {
 	for _, m := range defaultStore.metrics {
 		m.UnregisterAll()
 	}
-	defaultStore.metrics = make(map[string]types.Metrics, 100)
+	defaultStore.metrics = make(map[string]api.Metrics, 100)
 }
 
 func sortedLabels(labels map[string]string) (keys, values []string) {

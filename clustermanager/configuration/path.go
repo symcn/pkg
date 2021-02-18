@@ -6,19 +6,19 @@ import (
 	"os"
 	"strings"
 
-	"github.com/symcn/pkg/types"
-	"k8s.io/klog"
+	"github.com/symcn/api"
+	"k8s.io/klog/v2"
 )
 
 // cfgWithPath clusterconfiguration manager with file path
 type cfgWithPath struct {
 	dir            string
 	suffix         string
-	kubeConfigType types.KubeConfigType
+	kubeConfigType api.KubeConfigType
 }
 
 // NewClusterCfgManagerWithPath build cfgWithPath
-func NewClusterCfgManagerWithPath(dir string, suffix string, kubeConfigType types.KubeConfigType) (types.ClusterConfigurationManager, error) {
+func NewClusterCfgManagerWithPath(dir string, suffix string, kubeConfigType api.KubeConfigType) (api.ClusterConfigurationManager, error) {
 	s, err := os.Stat(dir)
 	if err != nil {
 		return nil, fmt.Errorf("NewClusterCfgManagerWithPath %s is not exist %+v", dir, err)
@@ -34,13 +34,13 @@ func NewClusterCfgManagerWithPath(dir string, suffix string, kubeConfigType type
 	}, nil
 }
 
-func (cp *cfgWithPath) GetAll() ([]types.ClusterCfgInfo, error) {
+func (cp *cfgWithPath) GetAll() ([]api.ClusterCfgInfo, error) {
 	files, err := ioutil.ReadDir(cp.dir)
 	if err != nil {
 		return nil, fmt.Errorf("Get clusterconfiguration with path failed, open %s err %+v", cp.dir, err)
 	}
 
-	list := make([]types.ClusterCfgInfo, 0, len(files))
+	list := make([]api.ClusterCfgInfo, 0, len(files))
 	for _, file := range files {
 		if !strings.HasSuffix(file.Name(), cp.suffix) {
 			continue
@@ -50,10 +50,10 @@ func (cp *cfgWithPath) GetAll() ([]types.ClusterCfgInfo, error) {
 
 		switch cp.kubeConfigType {
 
-		case types.KubeConfigTypeFile:
+		case api.KubeConfigTypeFile:
 			list = append(list, BuildClusterCfgInfo(file.Name(), cp.kubeConfigType, path, ""))
 
-		case types.KubeConfigTypeRawString:
+		case api.KubeConfigTypeRawString:
 			data, err := ioutil.ReadFile(path)
 			if err != nil {
 				return nil, fmt.Errorf("Get clusterconfiguration read %s err %+v", path, err)

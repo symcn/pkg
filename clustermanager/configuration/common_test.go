@@ -3,12 +3,12 @@ package configuration
 import (
 	"testing"
 
-	"github.com/symcn/pkg/types"
+	"github.com/symcn/api"
 )
 
 func TestBuildClusterCfgInfo(t *testing.T) {
 	name := "name"
-	kubeConfigType := types.KubeConfigTypeFile
+	kubeConfigType := api.KubeConfigTypeFile
 	kubeConfig := "kubeConfig"
 	kubeContext := "kubeContext"
 

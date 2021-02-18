@@ -5,11 +5,11 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/symcn/pkg/types"
+	"github.com/symcn/api"
 )
 
 // NewMetrics returns a metrics
-func NewMetrics(typ string, labels map[string]string) (types.Metrics, error) {
+func NewMetrics(typ string, labels map[string]string) (api.Metrics, error) {
 	if len(labels) > MaxLabelCount {
 		return nil, ErrLabelCountExceeded
 	}

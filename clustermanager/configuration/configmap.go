@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/symcn/pkg/types"
+	"github.com/symcn/api"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -27,7 +27,7 @@ type cfgWithConfigmap struct {
 }
 
 // NewClusterCfgManagerWithCM build cfgWithConfigmap
-func NewClusterCfgManagerWithCM(kubeInterface kubernetes.Interface, namespace string, label map[string]string, dataKey, statusKey string) types.ClusterConfigurationManager {
+func NewClusterCfgManagerWithCM(kubeInterface kubernetes.Interface, namespace string, label map[string]string, dataKey, statusKey string) api.ClusterConfigurationManager {
 	return &cfgWithConfigmap{
 		kubeInterface: kubeInterface,
 		namespace:     namespace,
@@ -37,7 +37,7 @@ func NewClusterCfgManagerWithCM(kubeInterface kubernetes.Interface, namespace st
 	}
 }
 
-func (cc *cfgWithConfigmap) GetAll() ([]types.ClusterCfgInfo, error) {
+func (cc *cfgWithConfigmap) GetAll() ([]api.ClusterCfgInfo, error) {
 	ctx, cancel := context.WithTimeout(context.TODO(), listConfigmapTimeout)
 	defer cancel()
 
@@ -56,8 +56,8 @@ func (cc *cfgWithConfigmap) GetAll() ([]types.ClusterCfgInfo, error) {
 }
 
 // Configmap2ClusterCfgInfo configmaplist to clusterconfiguration info
-func Configmap2ClusterCfgInfo(cmlist *v1.ConfigMapList, dataKey, statusKey string) []types.ClusterCfgInfo {
-	list := make([]types.ClusterCfgInfo, 0, len(cmlist.Items))
+func Configmap2ClusterCfgInfo(cmlist *v1.ConfigMapList, dataKey, statusKey string) []api.ClusterCfgInfo {
+	list := make([]api.ClusterCfgInfo, 0, len(cmlist.Items))
 
 	for _, cm := range cmlist.Items {
 		kubecfg, ok := cm.Data[dataKey]
@@ -71,7 +71,7 @@ func Configmap2ClusterCfgInfo(cmlist *v1.ConfigMapList, dataKey, statusKey strin
 			// otherwise disconnected
 			continue
 		}
-		list = append(list, BuildClusterCfgInfo(cm.Name, types.KubeConfigTypeRawString, kubecfg, ""))
+		list = append(list, BuildClusterCfgInfo(cm.Name, api.KubeConfigTypeRawString, kubecfg, ""))
 	}
 
 	return list

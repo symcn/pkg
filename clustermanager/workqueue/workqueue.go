@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/symcn/pkg/types"
+	"github.com/symcn/api"
 	"golang.org/x/time/rate"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/workqueue"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 // ratelimit queue set
@@ -29,11 +29,11 @@ type Queue struct {
 	gotIntervel time.Duration
 	workqueue   workqueue.RateLimitingInterface
 	stats       *stats
-	Do          types.Reconciler
+	Do          api.Reconciler
 }
 
 // NewQueue build queue
-func NewQueue(reconcile types.Reconciler, name string, threadiness int, gotInterval time.Duration) (types.WorkQueue, error) {
+func NewQueue(reconcile api.Reconciler, name string, threadiness int, gotInterval time.Duration) (api.WorkQueue, error) {
 	stats, err := buildStats(name)
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func (q *Queue) processNextWorkItem() bool {
 			q.stats.RequeueAfter.Inc()
 			return nil
 		}
-		if requeue == types.Requeue {
+		if requeue == api.Requeue {
 			q.workqueue.AddRateLimited(req)
 			q.stats.RequeueRateLimit.Inc()
 			return nil

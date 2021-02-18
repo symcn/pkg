@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/symcn/api"
 	"github.com/symcn/pkg/clustermanager/handler"
-	"github.com/symcn/pkg/types"
 	"k8s.io/client-go/tools/cache"
 	rtclient "sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -61,9 +61,9 @@ func (mc *multiclient) SetIndexField(obj rtclient.Object, field string, extractV
 // Watch may be provided one or more Predicates to filter events before
 // they are given to the EventHandler.  Events will be passed to the
 // EventHandler if all provided Predicates evaluate to true.
-func (mc *multiclient) Watch(obj rtclient.Object, queue types.WorkQueue, evtHandler types.EventHandler, predicates ...types.Predicate) error {
+func (mc *multiclient) Watch(obj rtclient.Object, queue api.WorkQueue, evtHandler api.EventHandler, predicates ...api.Predicate) error {
 	if queue == nil {
-		return errors.New("types.WorkQueue is nil")
+		return errors.New("api.WorkQueue is nil")
 	}
 	err := mc.AddResourceEventHandler(obj, handler.NewResourceEventHandler(queue, evtHandler, predicates...))
 	if err != nil {
@@ -91,7 +91,7 @@ func (mc *multiclient) HasSynced() bool {
 }
 
 // GetWithName returns MingleClient object with name
-func (mc *multiclient) GetWithName(name string) (types.MingleClient, error) {
+func (mc *multiclient) GetWithName(name string) (api.MingleClient, error) {
 	mc.l.Lock()
 	defer mc.l.Unlock()
 
@@ -102,7 +102,7 @@ func (mc *multiclient) GetWithName(name string) (types.MingleClient, error) {
 }
 
 // GetConnectedWithName returns MingleClient object with name and status is connected
-func (mc *multiclient) GetConnectedWithName(name string) (types.MingleClient, error) {
+func (mc *multiclient) GetConnectedWithName(name string) (api.MingleClient, error) {
 	mc.l.Lock()
 	defer mc.l.Unlock()
 
@@ -116,11 +116,11 @@ func (mc *multiclient) GetConnectedWithName(name string) (types.MingleClient, er
 }
 
 // GetAll returns all MingleClient
-func (mc *multiclient) GetAll() []types.MingleClient {
+func (mc *multiclient) GetAll() []api.MingleClient {
 	mc.l.Lock()
 	defer mc.l.Unlock()
 
-	list := make([]types.MingleClient, 0, len(mc.mingleClientMap))
+	list := make([]api.MingleClient, 0, len(mc.mingleClientMap))
 	for _, cli := range mc.mingleClientMap {
 		list = append(list, cli)
 	}
@@ -128,11 +128,11 @@ func (mc *multiclient) GetAll() []types.MingleClient {
 }
 
 // GetAllConnected returns all MingleClient which status is connected
-func (mc *multiclient) GetAllConnected() []types.MingleClient {
+func (mc *multiclient) GetAllConnected() []api.MingleClient {
 	mc.l.Lock()
 	defer mc.l.Unlock()
 
-	list := make([]types.MingleClient, 0, len(mc.mingleClientMap))
+	list := make([]api.MingleClient, 0, len(mc.mingleClientMap))
 	for _, cli := range mc.mingleClientMap {
 		if cli.IsConnected() {
 			list = append(list, cli)
@@ -142,6 +142,6 @@ func (mc *multiclient) GetAllConnected() []types.MingleClient {
 }
 
 // RegistryBeforAfterHandler registry BeforeStartHandle
-func (mc *multiclient) RegistryBeforAfterHandler(handler types.BeforeStartHandle) {
+func (mc *multiclient) RegistryBeforAfterHandler(handler api.BeforeStartHandle) {
 	mc.beforStartHandleList = append(mc.beforStartHandleList, handler)
 }

@@ -8,24 +8,24 @@ import (
 	"strings"
 	"time"
 
-	"github.com/symcn/pkg/types"
+	"github.com/symcn/api"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-func buildClientCmd(cfg types.ClusterCfgInfo, setRestConfigFnList []types.SetKubeRestConfig) (*rest.Config, error) {
+func buildClientCmd(cfg api.ClusterCfgInfo, setRestConfigFnList []api.SetKubeRestConfig) (*rest.Config, error) {
 	switch cfg.GetKubeConfigType() {
-	case types.KubeConfigTypeRawString:
+	case api.KubeConfigTypeRawString:
 		return buildClientCmdWithRawConfig(cfg.GetKubeConfig(), cfg.GetKubeContext(), setRestConfigFnList)
-	case types.KubeConfigTypeFile:
+	case api.KubeConfigTypeFile:
 		return buildClientCmdWithFile(cfg.GetKubeConfig(), cfg.GetKubeContext(), setRestConfigFnList)
 	default:
 		return nil, errors.New("just supoort rawstring and file kubeconfig")
 	}
 }
 
-func buildClientCmdWithRawConfig(kubeconf string, kubecontext string, setRestConfigFnList []types.SetKubeRestConfig) (*rest.Config, error) {
+func buildClientCmdWithRawConfig(kubeconf string, kubecontext string, setRestConfigFnList []api.SetKubeRestConfig) (*rest.Config, error) {
 	if kubeconf == "" {
 		return nil, errors.New("kubeconfig is empty")
 	}
@@ -45,7 +45,7 @@ func buildClientCmdWithRawConfig(kubeconf string, kubecontext string, setRestCon
 	return restcfg, nil
 }
 
-func buildClientCmdWithFile(kubeconf string, kubecontext string, setRestConfigFnList []types.SetKubeRestConfig) (*rest.Config, error) {
+func buildClientCmdWithFile(kubeconf string, kubecontext string, setRestConfigFnList []api.SetKubeRestConfig) (*rest.Config, error) {
 	if kubeconf != "" {
 		info, err := os.Stat(kubeconf)
 		if err != nil || info.Size() == 0 {

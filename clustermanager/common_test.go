@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/symcn/api"
 	"github.com/symcn/pkg/clustermanager/configuration"
-	"github.com/symcn/pkg/types"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
@@ -28,14 +28,14 @@ func TestCommon(t *testing.T) {
 	})
 
 	t.Run("buildClientCmd with error file", func(t *testing.T) {
-		_, err := buildClientCmd(configuration.BuildClusterCfgInfo("", types.KubeConfigTypeFile, "/error/file", ""), nil)
+		_, err := buildClientCmd(configuration.BuildClusterCfgInfo("", api.KubeConfigTypeFile, "/error/file", ""), nil)
 		if err == nil {
 			t.Error("error file must be error")
 		}
 	})
 
 	t.Run("buildClientCmd with error context", func(t *testing.T) {
-		_, err := buildClientCmd(configuration.BuildClusterCfgInfo("", types.KubeConfigTypeFile, "", "error-context"), nil)
+		_, err := buildClientCmd(configuration.BuildClusterCfgInfo("", api.KubeConfigTypeFile, "", "error-context"), nil)
 		if err == nil {
 			t.Error("error context must be error")
 			return
@@ -46,7 +46,7 @@ func TestCommon(t *testing.T) {
 		_, err = os.Stat(path)
 		if err == nil {
 			data, _ := ioutil.ReadFile(path)
-			_, err = buildClientCmd(configuration.BuildClusterCfgInfo("", types.KubeConfigTypeRawString, string(data), "error-context"), nil)
+			_, err = buildClientCmd(configuration.BuildClusterCfgInfo("", api.KubeConfigTypeRawString, string(data), "error-context"), nil)
 
 			if err == nil {
 				t.Error("error context must be error")
@@ -56,7 +56,7 @@ func TestCommon(t *testing.T) {
 	})
 
 	t.Run("buildClientCmd with empty kubeconfig", func(t *testing.T) {
-		_, err := buildClientCmd(configuration.BuildClusterCfgInfo("", types.KubeConfigTypeRawString, "", ""), nil)
+		_, err := buildClientCmd(configuration.BuildClusterCfgInfo("", api.KubeConfigTypeRawString, "", ""), nil)
 		if err == nil {
 			t.Error("empty rawstring kubeconfig must be error")
 		}

@@ -7,31 +7,31 @@ import (
 	"sync"
 	"time"
 
-	"github.com/symcn/pkg/types"
+	"github.com/symcn/api"
 	"k8s.io/klog/v2"
 )
 
 type multiclient struct {
 	*Options
-	clusterCfgManager    types.ClusterConfigurationManager
+	clusterCfgManager    api.ClusterConfigurationManager
 	rebuildInterval      time.Duration
 	l                    sync.Mutex
 	ctx                  context.Context
 	stopCh               chan struct{}
 	started              bool
-	mingleClientMap      map[string]types.MingleClient
-	beforStartHandleList []types.BeforeStartHandle
+	mingleClientMap      map[string]api.MingleClient
+	beforStartHandleList []api.BeforeStartHandle
 }
 
 // NewMultiMingleClient build multiclient
-func NewMultiMingleClient(clusterCfgManager types.ClusterConfigurationManager, rebuildInterval time.Duration, opt *Options) (types.MultiMingleClient, error) {
+func NewMultiMingleClient(clusterCfgManager api.ClusterConfigurationManager, rebuildInterval time.Duration, opt *Options) (api.MultiMingleClient, error) {
 	multiCli := &multiclient{
 		Options:              opt,
 		clusterCfgManager:    clusterCfgManager,
 		rebuildInterval:      rebuildInterval,
 		stopCh:               make(chan struct{}, 0),
-		mingleClientMap:      map[string]types.MingleClient{},
-		beforStartHandleList: []types.BeforeStartHandle{},
+		mingleClientMap:      map[string]api.MingleClient{},
+		beforStartHandleList: []api.BeforeStartHandle{},
 	}
 
 	clsList, err := multiCli.clusterCfgManager.GetAll()
@@ -74,7 +74,7 @@ func (mc *multiclient) Start(ctx context.Context) error {
 	}
 }
 
-func start(ctx context.Context, cli types.MingleClient, beforStartHandleList []types.BeforeStartHandle) error {
+func start(ctx context.Context, cli api.MingleClient, beforStartHandleList []api.BeforeStartHandle) error {
 	var err error
 	for _, handler := range beforStartHandleList {
 		err = handler(cli)
@@ -126,7 +126,7 @@ func (mc *multiclient) Rebuild() error {
 		return fmt.Errorf("get all cluster info failed %+v", err)
 	}
 
-	newCliMap := make(map[string]types.MingleClient, len(newList))
+	newCliMap := make(map[string]api.MingleClient, len(newList))
 	var change int
 	// add and check new cluster
 	for _, newClsInfo := range newList {
@@ -170,7 +170,7 @@ func (mc *multiclient) Rebuild() error {
 		if _, ok := newCliMap[name]; !ok {
 			change++
 			// not exist, should stop
-			go func(cli types.MingleClient) {
+			go func(cli api.MingleClient) {
 				cli.Stop()
 			}(oldCli)
 		}
@@ -185,6 +185,6 @@ func (mc *multiclient) Rebuild() error {
 	return nil
 }
 
-func (mc *multiclient) buildClient(clsInfo types.ClusterCfgInfo) (types.MingleClient, error) {
+func (mc *multiclient) buildClient(clsInfo api.ClusterCfgInfo) (api.MingleClient, error) {
 	return NewMingleClient(clsInfo, mc.Options)
 }

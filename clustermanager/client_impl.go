@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/symcn/api"
 	"github.com/symcn/pkg/clustermanager/handler"
-	"github.com/symcn/pkg/types"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -63,9 +63,9 @@ func (c *client) SetIndexField(obj rtclient.Object, field string, extractValue r
 // Watch may be provided one or more Predicates to filter events before
 // they are given to the EventHandler.  Events will be passed to the
 // EventHandler if all provided Predicates evaluate to true.
-func (c *client) Watch(obj rtclient.Object, queue types.WorkQueue, evtHandler types.EventHandler, predicates ...types.Predicate) error {
+func (c *client) Watch(obj rtclient.Object, queue api.WorkQueue, evtHandler api.EventHandler, predicates ...api.Predicate) error {
 	if queue == nil {
-		return errors.New("types.WorkQueue is nil")
+		return errors.New("api.WorkQueue is nil")
 	}
 	return c.AddResourceEventHandler(obj, handler.NewResourceEventHandler(queue, evtHandler, predicates...))
 }
