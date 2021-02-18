@@ -67,6 +67,8 @@ func (mc *multiclient) Start(ctx context.Context) error {
 	}
 	mc.l.Unlock()
 
+	go mc.autoRebuild()
+
 	select {
 	case <-ctx.Done():
 		close(mc.stopCh)
