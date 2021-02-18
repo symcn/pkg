@@ -51,33 +51,33 @@ func DefaultClusterCfgInfo(clusterName string) api.ClusterCfgInfo {
 }
 
 // DefaultOptions use default config
-// if scheme is empty use default Kubernetes resource
+// use default Kubernetes resource
 // disable leader
-func DefaultOptions(scheme *runtime.Scheme, qps, burst int) *Options {
-	if scheme == nil {
-		scheme = runtime.NewScheme()
-		clientgoscheme.AddToScheme(scheme)
-	}
-	if qps < 1 {
-		qps = defaultQPS
-	}
-	if burst < 1 {
-		burst = defaultBurst
-	}
-
+func DefaultOptions() *Options {
+	scheme := runtime.NewScheme()
+	clientgoscheme.AddToScheme(scheme)
 	return &Options{
 		Scheme:              scheme,
 		LeaderElection:      false,
 		SyncPeriod:          defaultSyncPeriod,
 		HealthCheckInterval: defaultHealthCheckInterval,
 		ExecTimeout:         defaultExecTimeout,
-		QPS:                 qps,
-		Burst:               burst,
-		// SetKubeRestConfigFnList: []api.SetKubeRestConfig{
-		//     func(config *rest.Config) {
-		//         config.QPS = float32(qps)
-		//         config.Burst = burst
-		//     },
-		// },
+		QPS:                 defaultQPS,
+		Burst:               defaultBurst,
 	}
+}
+
+// DefaultOptionsWithScheme use default config
+// if scheme is empty use default Kubernetes resource
+// disable leader
+func DefaultOptionsWithScheme(scheme *runtime.Scheme) *Options {
+	opt := DefaultOptions()
+
+	if scheme == nil {
+		return opt
+	}
+
+	// override scheme
+	opt.Scheme = scheme
+	return opt
 }

@@ -23,7 +23,7 @@ func TestExceptionNewMingleClient(t *testing.T) {
 	})
 	t.Run("scheme is empty", func(t *testing.T) {
 		cfg := DefaultClusterCfgInfo("")
-		opt := DefaultOptions(nil, 0, 0)
+		opt := DefaultOptions()
 		opt.Scheme = nil
 		_, err := NewMingleClient(cfg, opt)
 		if err == nil {
@@ -32,7 +32,7 @@ func TestExceptionNewMingleClient(t *testing.T) {
 	})
 	t.Run("exectimeout to small", func(t *testing.T) {
 		cfg := DefaultClusterCfgInfo("")
-		opt := DefaultOptions(nil, 0, 0)
+		opt := DefaultOptions()
 		opt.ExecTimeout = time.Millisecond * 10
 		_, err := NewMingleClient(cfg, opt)
 		if err != nil {
@@ -42,7 +42,7 @@ func TestExceptionNewMingleClient(t *testing.T) {
 
 	// health check
 	t.Run("no health check", func(t *testing.T) {
-		cli, err := NewMingleClient(DefaultClusterCfgInfo(""), DefaultOptions(nil, 0, 0))
+		cli, err := NewMingleClient(DefaultClusterCfgInfo(""), DefaultOptions())
 		if err != nil {
 			t.Error(err)
 			return
@@ -63,7 +63,7 @@ func TestExceptionNewMingleClient(t *testing.T) {
 
 	// start
 	t.Run("repeat start", func(t *testing.T) {
-		cli, err := NewMingleClient(DefaultClusterCfgInfo(""), DefaultOptions(nil, 0, 0))
+		cli, err := NewMingleClient(DefaultClusterCfgInfo(""), DefaultOptions())
 		if err != nil {
 			t.Error(err)
 			return
@@ -89,7 +89,7 @@ func TestExceptionNewMingleClient(t *testing.T) {
 	})
 
 	t.Run("stop", func(t *testing.T) {
-		cli, err := NewMingleClient(DefaultClusterCfgInfo(""), DefaultOptions(nil, 0, 0))
+		cli, err := NewMingleClient(DefaultClusterCfgInfo(""), DefaultOptions())
 		if err != nil {
 			t.Error(err)
 			return
@@ -109,7 +109,7 @@ func TestExceptionNewMingleClient(t *testing.T) {
 	})
 
 	t.Run("start connect status", func(t *testing.T) {
-		cli, err := NewMingleClient(DefaultClusterCfgInfo(""), DefaultOptions(nil, 0, 0))
+		cli, err := NewMingleClient(DefaultClusterCfgInfo(""), DefaultOptions())
 		if err != nil {
 			t.Error(err)
 			return
@@ -137,7 +137,7 @@ func TestExceptionNewMingleClient(t *testing.T) {
 }
 
 func TestNewMingleClient(t *testing.T) {
-	cli, err := NewMingleClient(DefaultClusterCfgInfo(""), DefaultOptions(nil, 0, 0))
+	cli, err := NewMingleClient(DefaultClusterCfgInfo(""), DefaultOptions())
 	if err != nil {
 		t.Error(err)
 		return

@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	mockOpt = DefaultOptions(nil, 0, 0)
+	mockOpt = DefaultOptions()
 )
 
 func TestNewMultiClient(t *testing.T) {
