@@ -19,7 +19,7 @@ func (b *base) Delete(obj rtclient.Object) bool {
 }
 
 // Update returns true if the Update event should be processed
-func (b *base) Update(objObj, newObj rtclient.Object) bool {
+func (b *base) Update(oldObj, newObj rtclient.Object) bool {
 	return b.handler(newObj)
 }
 
