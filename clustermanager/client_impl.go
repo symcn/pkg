@@ -148,6 +148,16 @@ func (c *client) DeleteAllOf(obj rtclient.Object, opts ...rtclient.DeleteAllOfOp
 	return c.ctrlRtClient.DeleteAllOf(ctx, obj, opts...)
 }
 
+// List retrieves list of objects for a given namespace and list options. On a
+// successful call, Items field in the list will be populated with the
+// result returned from the server.
+func (c *client) List(obj rtclient.ObjectList, opts ...rtclient.ListOption) error {
+	ctx, cancel := context.WithTimeout(context.TODO(), c.ExecTimeout)
+	defer cancel()
+
+	return c.ctrlRtClient.List(ctx, obj, opts...)
+}
+
 // GetRestConfig return Kubernetes rest Config
 func (c *client) GetKubeRestConfig() *rest.Config {
 	return c.kubeRestConfig
