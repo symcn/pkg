@@ -9,6 +9,7 @@ import (
 	"github.com/symcn/api"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/record"
 	"k8s.io/klog/v2"
 	controllers "sigs.k8s.io/controller-runtime"
 	rtcache "sigs.k8s.io/controller-runtime/pkg/cache"
@@ -29,9 +30,10 @@ type client struct {
 	kubeRestConfig *rest.Config
 	kubeInterface  kubernetes.Interface
 
-	ctrlRtManager rtmanager.Manager
-	ctrlRtCache   rtcache.Cache
-	ctrlRtClient  rtclient.Client
+	ctrlRtManager     rtmanager.Manager
+	ctrlRtCache       rtcache.Cache
+	ctrlRtClient      rtclient.Client
+	ctrlEventRecorder record.EventRecorder
 }
 
 // NewMingleClient build api.MingleClient
@@ -121,6 +123,7 @@ func (c *client) initialization() error {
 	}
 	c.ctrlRtClient = c.ctrlRtManager.GetClient()
 	c.ctrlRtCache = c.ctrlRtManager.GetCache()
+	c.ctrlEventRecorder = c.ctrlRtManager.GetEventRecorderFor(c.clusterCfg.GetName())
 
 	return nil
 }

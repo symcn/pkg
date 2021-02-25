@@ -6,6 +6,7 @@ import (
 
 	"github.com/symcn/api"
 	"github.com/symcn/pkg/clustermanager/handler"
+	"k8s.io/apimachinery/pkg/runtime"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -156,6 +157,31 @@ func (c *client) List(obj rtclient.ObjectList, opts ...rtclient.ListOption) erro
 	defer cancel()
 
 	return c.ctrlRtClient.List(ctx, obj, opts...)
+}
+
+// Event constructs an event from the given information and puts it in the queue for sending.
+// 'object' is the object this event is about. Event will make a reference-- or you may also
+// pass a reference to the object directly.
+// 'type' of this event, and can be one of Normal, Warning. New types could be added in future
+// 'reason' is the reason this event is generated. 'reason' should be short and unique; it
+// should be in UpperCamelCase format (starting with a capital letter). "reason" will be used
+// to automate handling of events, so imagine people writing switch statements to handle them.
+// You want to make that easy.
+// 'message' is intended to be human readable.
+//
+// The resulting event will be created in the same namespace as the reference object.
+func (c *client) Event(object runtime.Object, eventtype, reason, message string) {
+	c.ctrlEventRecorder.Event(object, eventtype, reason, message)
+}
+
+// Eventf is just like Event, but with Sprintf for the message field.
+func (c *client) Eventf(object runtime.Object, eventtype, reason, messageFmt string, args ...interface{}) {
+	c.ctrlEventRecorder.Eventf(object, eventtype, reason, messageFmt, args...)
+}
+
+// AnnotatedEventf is just like eventf, but with annotations attached
+func (c *client) AnnotatedEventf(object runtime.Object, annotations map[string]string, eventtype, reason, messageFmt string, args ...interface{}) {
+	c.ctrlEventRecorder.AnnotatedEventf(object, annotations, eventtype, reason, messageFmt, args...)
 }
 
 // GetRestConfig return Kubernetes rest Config
