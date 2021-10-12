@@ -2,6 +2,11 @@ module github.com/symcn/pkg
 
 go 1.17
 
+replace (
+	github.com/go-logr/logr => github.com/go-logr/logr v0.4.0
+	k8s.io/klog/v2 => k8s.io/klog/v2 v2.10.0
+)
+
 require (
 	github.com/prometheus/client_golang v1.11.0
 	github.com/symcn/api v0.0.0-20211012060945-85cf300633de
@@ -9,7 +14,7 @@ require (
 	k8s.io/api v0.22.2
 	k8s.io/apimachinery v0.22.2
 	k8s.io/client-go v0.22.2
-	k8s.io/klog/v2 v2.10.0
+	k8s.io/klog/v2 v2.9.0
 	sigs.k8s.io/controller-runtime v0.10.2
 )
 
@@ -20,7 +25,6 @@ require (
 	github.com/evanphx/json-patch v4.11.0+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-logr/logr v0.4.0 // indirect
-	github.com/go-logr/zapr v0.4.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -38,9 +42,6 @@ require (
 	github.com/prometheus/common v0.26.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.19.0 // indirect
 	golang.org/x/net v0.0.0-20210520170846-37e1c6afe023 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
 	golang.org/x/sys v0.0.0-20210817190340-bfb29a6856f2 // indirect
@@ -59,5 +60,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.1.2 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )
-
-replace github.com/go-logr/logr => github.com/go-logr/logr v0.4.0
