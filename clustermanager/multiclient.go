@@ -27,6 +27,9 @@ func (mc *multiClient) Start(ctx context.Context) error {
 		return errors.New("multiclient can't repeat start")
 	}
 
+	// save ctx, when add new client
+	mc.ctx = ctx
+
 	clsList, err := mc.ClusterCfgManager.GetAll()
 	if err != nil {
 		return fmt.Errorf("Start multiClient get all cluster info failed %+v", err)
@@ -43,9 +46,6 @@ func (mc *multiClient) Start(ctx context.Context) error {
 		}
 		mc.MingleClientMap[clsInfo.GetName()] = cli
 	}
-
-	// save ctx, when add new client
-	mc.ctx = ctx
 
 	go mc.autoRebuild()
 
