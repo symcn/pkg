@@ -130,7 +130,7 @@ func TestNewMetrics(t *testing.T) {
 	}()
 
 	done := make(chan struct{}, 0)
-	count := 10000
+	count := 100
 	queue, err := NewQueue(&reconcile{done: done, count: count, err: errors.New("mock error")}, "benchmark", 1, time.Second)
 	if err != nil {
 		t.Error(err)

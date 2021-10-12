@@ -27,7 +27,16 @@ func TestNewMultiClient(t *testing.T) {
 	}
 	clusterCfgManager := configuration.NewClusterCfgManagerWithCM(cli.GetKubeInterface(), "sym-admin", map[string]string{"ClusterOwner": "sym-admin"}, "kubeconfig.yaml", "status")
 
-	multiCli, err := NewMultiMingleClient(clusterCfgManager, time.Second*5, mockOpt)
+	mcc := NewMultiClientConfig()
+	mcc.ClusterCfgManager = clusterCfgManager
+	mcc.Options = mockOpt
+	cc, err := Complete(mcc)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	multiCli, err := cc.New()
 	if err != nil {
 		t.Error(err)
 		return

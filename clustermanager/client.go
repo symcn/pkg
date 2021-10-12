@@ -88,6 +88,7 @@ func (c *client) preCheck() error {
 		c.SetKubeRestConfigFnList = append(c.SetKubeRestConfigFnList, func(config *rest.Config) {
 			config.QPS = float32(c.QPS)
 			config.Burst = c.Burst
+			config.UserAgent = c.UserAgent
 		})
 	}
 
@@ -119,7 +120,7 @@ func (c *client) initialization() error {
 		HealthProbeBindAddress:  "0",
 	})
 	if err != nil {
-		return fmt.Errorf("cluster %s build controller-runtime manager failed %+v", c.clusterCfg.GetName(), err)
+		return fmt.Errorf("cluster %s build controller-runtime manager failed: %+v", c.clusterCfg.GetName(), err)
 	}
 	c.ctrlRtClient = c.ctrlRtManager.GetClient()
 	c.ctrlRtCache = c.ctrlRtManager.GetCache()

@@ -5,67 +5,47 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/symcn/api"
 	"k8s.io/klog/v2"
 )
 
-type multiclient struct {
-	*Options
-	clusterCfgManager    api.ClusterConfigurationManager
-	rebuildInterval      time.Duration
+type multiClient struct {
+	*CompletedConfig
+	MingleClientMap      map[string]api.MingleClient
+	BeforStartHandleList []api.BeforeStartHandle
 	l                    sync.Mutex
 	ctx                  context.Context
 	stopCh               chan struct{}
-	started              bool
-	mingleClientMap      map[string]api.MingleClient
-	beforStartHandleList []api.BeforeStartHandle
+	started              int32
 }
 
-// NewMultiMingleClient build multiclient
-func NewMultiMingleClient(clusterCfgManager api.ClusterConfigurationManager, rebuildInterval time.Duration, opt *Options) (api.MultiMingleClient, error) {
-	multiCli := &multiclient{
-		Options:              opt,
-		clusterCfgManager:    clusterCfgManager,
-		rebuildInterval:      rebuildInterval,
-		stopCh:               make(chan struct{}, 0),
-		mingleClientMap:      map[string]api.MingleClient{},
-		beforStartHandleList: []api.BeforeStartHandle{},
-	}
-
-	clsList, err := multiCli.clusterCfgManager.GetAll()
-	if err != nil {
-		return nil, fmt.Errorf("NewMulticMingleClient get all cluster info failed %+v", err)
-	}
-	for _, clsInfo := range clsList {
-		cli, err := multiCli.buildClient(clsInfo)
-		if err != nil {
-			return nil, err
-		}
-		multiCli.mingleClientMap[clsInfo.GetName()] = cli
-	}
-	return multiCli, nil
-}
-
-func (mc *multiclient) Start(ctx context.Context) error {
-	if mc.started {
+func (mc *multiClient) Start(ctx context.Context) error {
+	if !atomic.CompareAndSwapInt32(&mc.started, 0, 1) {
 		return errors.New("multiclient can't repeat start")
 	}
-	mc.started = true
-	// save ctx, when add new client
-	mc.ctx = ctx
 
-	mc.l.Lock()
-	var err error
-	for _, cli := range mc.mingleClientMap {
-		err = start(mc.ctx, cli, mc.beforStartHandleList)
+	clsList, err := mc.ClusterCfgManager.GetAll()
+	if err != nil {
+		return fmt.Errorf("Start multiClient get all cluster info failed %+v", err)
+	}
+
+	for _, clsInfo := range clsList {
+		cli, err := mc.buildClient(clsInfo)
 		if err != nil {
-			mc.l.Unlock()
 			return err
 		}
+		err = start(mc.ctx, cli, mc.BeforStartHandleList)
+		if err != nil {
+			return err
+		}
+		mc.MingleClientMap[clsInfo.GetName()] = cli
 	}
-	mc.l.Unlock()
+
+	// save ctx, when add new client
+	mc.ctx = ctx
 
 	go mc.autoRebuild()
 
@@ -95,13 +75,13 @@ func start(ctx context.Context, cli api.MingleClient, beforStartHandleList []api
 	return nil
 }
 
-func (mc *multiclient) autoRebuild() {
-	if mc.rebuildInterval <= 0 {
+func (mc *multiClient) autoRebuild() {
+	if mc.RebuildInterval <= 0 {
 		return
 	}
 
 	var err error
-	timer := time.NewTicker(mc.rebuildInterval)
+	timer := time.NewTicker(mc.RebuildInterval)
 	for {
 		select {
 		case <-timer.C:
@@ -115,15 +95,16 @@ func (mc *multiclient) autoRebuild() {
 }
 
 // Rebuild get clusterconfigurationmanager GetAll and rebuild clusterClientMap
-func (mc *multiclient) Rebuild() error {
-	if !mc.started {
+func (mc *multiClient) Rebuild() error {
+	if atomic.LoadInt32(&mc.started) == 0 {
+		klog.Warningln("MultiClient not started, rebuild failed.")
 		return nil
 	}
 
 	mc.l.Lock()
 	defer mc.l.Unlock()
 
-	newList, err := mc.clusterCfgManager.GetAll()
+	newList, err := mc.ClusterCfgManager.GetAll()
 	if err != nil {
 		return fmt.Errorf("get all cluster info failed %+v", err)
 	}
@@ -133,7 +114,7 @@ func (mc *multiclient) Rebuild() error {
 	// add and check new cluster
 	for _, newClsInfo := range newList {
 		// get old cluster info
-		oldCli, exist := mc.mingleClientMap[newClsInfo.GetName()]
+		oldCli, exist := mc.MingleClientMap[newClsInfo.GetName()]
 		if exist &&
 			oldCli.GetClusterCfgInfo().GetKubeConfigType() == newClsInfo.GetKubeConfigType() &&
 			oldCli.GetClusterCfgInfo().GetKubeConfig() == newClsInfo.GetKubeConfig() &&
@@ -151,7 +132,7 @@ func (mc *multiclient) Rebuild() error {
 		}
 
 		// start new client
-		err = start(mc.ctx, cli, mc.beforStartHandleList)
+		err = start(mc.ctx, cli, mc.BeforStartHandleList)
 		if err != nil {
 			klog.Error(err)
 			continue
@@ -168,7 +149,7 @@ func (mc *multiclient) Rebuild() error {
 	}
 
 	// remove unexpect cluster
-	for name, oldCli := range mc.mingleClientMap {
+	for name, oldCli := range mc.MingleClientMap {
 		if _, ok := newCliMap[name]; !ok {
 			change++
 			// not exist, should stop
@@ -183,10 +164,10 @@ func (mc *multiclient) Rebuild() error {
 		return nil
 	}
 
-	mc.mingleClientMap = newCliMap
+	mc.MingleClientMap = newCliMap
 	return nil
 }
 
-func (mc *multiclient) buildClient(clsInfo api.ClusterCfgInfo) (api.MingleClient, error) {
+func (mc *multiClient) buildClient(clsInfo api.ClusterCfgInfo) (api.MingleClient, error) {
 	return NewMingleClient(clsInfo, mc.Options)
 }
