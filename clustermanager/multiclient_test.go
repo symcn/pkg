@@ -52,18 +52,20 @@ func TestNewMultiClient(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	// eventHandler := &mockEventHandler{}
-	// err = multiCli.Watch(&corev1.Pod{}, queue, eventHandler, predicate.NamespacePredicate("*"))
-	// if err != nil {
-	//     t.Error(err)
-	//     return
-	// }
-
-	// err = cli.Watch(&corev1.ConfigMap{}, queue, eventHandler, predicate.NamespacePredicate("*"))
-	// if err != nil {
-	//     t.Error(err)
-	//     return
-	// }
+	/*
+	 *     eventHandler := &mockEventHandler{}
+	 *     err = multiCli.Watch(&corev1.Pod{}, queue, eventHandler, predicate.NamespacePredicate("*"))
+	 *     if err != nil {
+	 *         t.Error(err)
+	 *         return
+	 *     }
+	 *
+	 *     err = cli.Watch(&corev1.ConfigMap{}, queue, eventHandler, predicate.NamespacePredicate("*"))
+	 *     if err != nil {
+	 *         t.Error(err)
+	 *         return
+	 *     }
+	 */
 	multiCli.RegistryBeforAfterHandler(func(cli api.MingleClient) error {
 		eventHandler := &mockEventHandler{}
 		err := cli.Watch(&corev1.Pod{}, queue, eventHandler, predicate.NamespacePredicate("*"))
