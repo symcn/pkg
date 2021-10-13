@@ -65,7 +65,6 @@ func (q *queue) processNextWorkItem() bool {
 		// period.
 		defer q.Workqueue.Done(obj)
 
-		// TODO: invoke Reconcile
 		var req ktypes.NamespacedName
 		var ok bool
 		if req, ok = obj.(ktypes.NamespacedName); !ok {
@@ -75,8 +74,19 @@ func (q *queue) processNextWorkItem() bool {
 			return nil
 		}
 
+		var (
+			requeue api.NeedRequeue
+			after   time.Duration
+			err     error
+		)
 		// invoke Reconcile
-		requeue, after, err := q.Do.Reconcile(req)
+		if q.doReconcileWithName {
+			// wrap reconcile
+			requeue, after, err = q.WrapDo.Reconcile(WrapNamespacedName{NamespacedName: req, QName: q.Name})
+		} else {
+			// standard reconcile
+			requeue, after, err = q.Do.Reconcile(req)
+		}
 		if err != nil {
 			q.Workqueue.AddRateLimited(req)
 			q.Stats.ReconcileFail.Inc()

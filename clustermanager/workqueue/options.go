@@ -1,10 +1,12 @@
 package workqueue
 
 import (
+	"errors"
 	"time"
 
 	"github.com/symcn/api"
 	"golang.org/x/time/rate"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/workqueue"
 )
 
@@ -19,6 +21,17 @@ var (
 	defaultThreadiness           = 1
 )
 
+type WrapNamespacedName struct {
+	types.NamespacedName
+
+	// queue name
+	QName string
+}
+
+type WrapReconciler interface {
+	Reconcile(req WrapNamespacedName) (requeue api.NeedRequeue, after time.Duration, err error)
+}
+
 type QueueConfig struct {
 	Name                  string
 	GotInterval           time.Duration
@@ -28,6 +41,9 @@ type QueueConfig struct {
 	RateBurst             int
 	Threadiness           int
 	Do                    api.Reconciler
+
+	doReconcileWithName bool
+	WrapDo              WrapReconciler
 }
 
 type compltedConfig struct {
@@ -45,6 +61,7 @@ type queue struct {
 	Stats     *stats
 }
 
+// NewQueueConfig build standard queue
 func NewQueueConfig(reconcile api.Reconciler) *QueueConfig {
 	qc := &QueueConfig{
 		Name:                  defaultQueueName,
@@ -55,6 +72,23 @@ func NewQueueConfig(reconcile api.Reconciler) *QueueConfig {
 		RateBurst:             defaultRateBurst,
 		Threadiness:           defaultThreadiness,
 		Do:                    reconcile,
+	}
+
+	return qc
+}
+
+// NewWrapQueueConfig build queue which request with clustername
+func NewWrapQueueConfig(reconcile WrapReconciler) *QueueConfig {
+	qc := &QueueConfig{
+		Name:                  defaultQueueName,
+		GotInterval:           defaultGotInterval,
+		RateLimitTimeInterval: defaultRateLimitTimeInterval,
+		RateLimitTimeMax:      defaultRateLimitTimeMax,
+		RateLimit:             defaultRateLimit,
+		RateBurst:             defaultRateBurst,
+		Threadiness:           defaultThreadiness,
+		doReconcileWithName:   true,
+		WrapDo:                reconcile,
 	}
 
 	return qc
@@ -71,6 +105,10 @@ func Complted(qc *QueueConfig) *CompletedConfig {
 		cc.Threadiness = defaultThreadiness
 	}
 
+	if !cc.doReconcileWithName {
+		cc.WrapDo = nil
+	}
+
 	return cc
 }
 
@@ -79,6 +117,14 @@ func (cc *CompletedConfig) NewQueue() (api.WorkQueue, error) {
 	stats, err := buildStats(cc.Name)
 	if err != nil {
 		return nil, err
+	}
+
+	if !cc.doReconcileWithName && cc.Do == nil {
+		return nil, errors.New("NewQueueConfig should use standard Reconciler!")
+	}
+
+	if cc.doReconcileWithName && cc.WrapDo == nil {
+		return nil, errors.New("NewWrapQueueConfig should use WrapReconciler!")
 	}
 
 	q := &queue{
