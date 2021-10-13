@@ -82,7 +82,7 @@ func (q *queue) processNextWorkItem() bool {
 		// invoke Reconcile
 		if q.doReconcileWithName {
 			// wrap reconcile
-			requeue, after, err = q.WrapDo.Reconcile(WrapNamespacedName{NamespacedName: req, QName: q.Name})
+			requeue, after, err = q.WrapDo.Reconcile(api.WrapNamespacedName{NamespacedName: req, QName: q.Name})
 		} else {
 			// standard reconcile
 			requeue, after, err = q.Do.Reconcile(req)

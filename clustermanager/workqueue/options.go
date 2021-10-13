@@ -6,7 +6,6 @@ import (
 
 	"github.com/symcn/api"
 	"golang.org/x/time/rate"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/workqueue"
 )
 
@@ -21,17 +20,6 @@ var (
 	defaultThreadiness           = 1
 )
 
-type WrapNamespacedName struct {
-	types.NamespacedName
-
-	// queue name
-	QName string
-}
-
-type WrapReconciler interface {
-	Reconcile(req WrapNamespacedName) (requeue api.NeedRequeue, after time.Duration, err error)
-}
-
 type QueueConfig struct {
 	Name                  string
 	GotInterval           time.Duration
@@ -43,7 +31,7 @@ type QueueConfig struct {
 	Do                    api.Reconciler
 
 	doReconcileWithName bool
-	WrapDo              WrapReconciler
+	WrapDo              api.WrapReconciler
 }
 
 type compltedConfig struct {
@@ -78,7 +66,7 @@ func NewQueueConfig(reconcile api.Reconciler) *QueueConfig {
 }
 
 // NewWrapQueueConfig build queue which request with clustername
-func NewWrapQueueConfig(name string, reconcile WrapReconciler) *QueueConfig {
+func NewWrapQueueConfig(name string, reconcile api.WrapReconciler) *QueueConfig {
 	qc := &QueueConfig{
 		Name:                  name,
 		GotInterval:           defaultGotInterval,

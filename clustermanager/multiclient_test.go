@@ -68,7 +68,7 @@ func TestNewMultiClient(t *testing.T) {
 	 *         return
 	 *     }
 	 */
-	multiCli.RegistryBeforAfterHandler(func(cli api.MingleClient) error {
+	multiCli.RegistryBeforAfterHandler(func(ctx context.Context, cli api.MingleClient) error {
 		eventHandler := &mockEventHandler{}
 		err := cli.Watch(&corev1.Pod{}, queue, eventHandler, predicate.NamespacePredicate("*"))
 		if err != nil {
@@ -118,11 +118,105 @@ func TestNewMultiClient(t *testing.T) {
 	}
 }
 
+func TestMultiClientQueueLifeCycleWithClient(t *testing.T) {
+	cli, err := NewMingleClient(configuration.BuildDefaultClusterCfgInfo("meta"), mockOpt)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	clusterCfgManager := configuration.NewClusterCfgManagerWithCM(cli.GetKubeInterface(), "sym-admin", map[string]string{"ClusterOwner": "sym-admin"}, "kubeconfig.yaml", "status")
+
+	mcc := NewMultiClientConfig()
+	mcc.ClusterCfgManager = clusterCfgManager
+	mcc.Options = mockOpt
+	cc, err := Complete(mcc)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	multiCli, err := cc.New()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	sameLifeCycle := make(chan struct{}, 0)
+
+	multiCli.RegistryBeforAfterHandler(func(ctx context.Context, cli api.MingleClient) error {
+		queue, err := workqueue.Complted(workqueue.NewWrapQueueConfig(cli.GetClusterCfgInfo().GetName(), &wrapreconcile{})).NewQueue()
+		if err != nil {
+			return err
+		}
+		go queue.Start(ctx)
+
+		go func() {
+			<-ctx.Done()
+			close(sameLifeCycle)
+		}()
+
+		eventHandler := &mockEventHandler{}
+		err = cli.Watch(&corev1.Pod{}, queue, eventHandler, predicate.NamespacePredicate("*"))
+		if err != nil {
+			t.Error(err)
+			return err
+		}
+
+		err = cli.Watch(&corev1.ConfigMap{}, queue, eventHandler, predicate.NamespacePredicate("*"))
+		if err != nil {
+			t.Error(err)
+			return err
+		}
+		return nil
+	})
+
+	ctx, cancel := context.WithCancel(context.TODO())
+
+	ch := make(chan struct{}, 0)
+	go func() {
+		err = multiCli.Start(ctx)
+		if err != nil {
+			t.Error(err)
+		}
+		close(ch)
+	}()
+
+	syncCh := make(chan struct{}, 0)
+	go func() {
+		for !multiCli.HasSynced() {
+			t.Log("wait sync")
+			time.Sleep(time.Millisecond * 100)
+		}
+		close(syncCh)
+	}()
+
+	select {
+	case <-ch:
+	case <-syncCh:
+	}
+
+	cancel()
+
+	select {
+	case <-sameLifeCycle:
+	case <-time.After(time.Second * 1):
+		t.Error("beforStartHandleList context is not life cycle with client")
+	}
+}
+
 type reconcile struct {
 }
 
 func (r *reconcile) Reconcile(req ktypes.NamespacedName) (requeue api.NeedRequeue, after time.Duration, err error) {
 	fmt.Println(req.String())
+	return api.Done, 0, nil
+}
+
+type wrapreconcile struct {
+}
+
+func (wr *wrapreconcile) Reconcile(req api.WrapNamespacedName) (requeue api.NeedRequeue, after time.Duration, err error) {
+	fmt.Println(req.NamespacedName.String())
 	return api.Done, 0, nil
 }
 

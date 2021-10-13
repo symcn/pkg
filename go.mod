@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/prometheus/client_golang v1.11.0
-	github.com/symcn/api v0.0.0-20211012060945-85cf300633de
+	github.com/symcn/api v0.0.0-20211013082201-302183f0eba9
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 	k8s.io/api v0.22.2
 	k8s.io/apimachinery v0.22.2

@@ -59,7 +59,7 @@ func (mc *multiClient) Start(ctx context.Context) error {
 func start(ctx context.Context, cli api.MingleClient, beforStartHandleList []api.BeforeStartHandle) error {
 	var err error
 	for _, handler := range beforStartHandleList {
-		err = handler(cli)
+		err = handler(ctx, cli)
 		if err != nil {
 			return fmt.Errorf("invoke mingle client %s BeforeHandle failed %+v", cli.GetClusterCfgInfo().GetName(), err)
 		}
