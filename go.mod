@@ -2,11 +2,6 @@ module github.com/symcn/pkg
 
 go 1.17
 
-replace (
-	github.com/go-logr/logr => github.com/go-logr/logr v0.4.0
-	k8s.io/klog/v2 => k8s.io/klog/v2 v2.10.0
-)
-
 require (
 	github.com/prometheus/client_golang v1.11.0
 	github.com/symcn/api v0.0.0-20211012060945-85cf300633de
@@ -59,4 +54,9 @@ require (
 	k8s.io/utils v0.0.0-20210819203725-bdf08cb9a70a // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.1.2 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
+)
+
+replace (
+	github.com/go-logr/logr => github.com/go-logr/logr v0.4.0
+	k8s.io/klog/v2 => k8s.io/klog/v2 v2.10.0
 )

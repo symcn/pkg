@@ -6,93 +6,53 @@ import (
 	"time"
 
 	"github.com/symcn/api"
-	"golang.org/x/time/rate"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/client-go/util/workqueue"
 	"k8s.io/klog/v2"
 )
 
-// ratelimit queue set
-var (
-	RateLimitTimeInterval = time.Second * 1
-	RateLimitTimeMax      = time.Second * 60
-	RateLimit             = 10
-	RateBurst             = 100
-)
-
-// Queue wrapper workqueue
-type Queue struct {
-	name        string
-	threadiness int
-	gotIntervel time.Duration
-	workqueue   workqueue.RateLimitingInterface
-	stats       *stats
-	Do          api.Reconciler
-}
-
-// NewQueue build queue
-func NewQueue(reconcile api.Reconciler, name string, threadiness int, gotInterval time.Duration) (api.WorkQueue, error) {
-	stats, err := buildStats(name)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Queue{
-		name:        name,
-		threadiness: threadiness,
-		gotIntervel: gotInterval,
-		workqueue: workqueue.NewNamedRateLimitingQueue(workqueue.NewMaxOfRateLimiter(
-			workqueue.NewItemExponentialFailureRateLimiter(RateLimitTimeInterval, RateLimitTimeMax),
-			&workqueue.BucketRateLimiter{Limiter: rate.NewLimiter(rate.Limit(RateLimit), RateBurst)},
-		), name),
-		stats: stats,
-		Do:    reconcile,
-	}, nil
-}
-
 // Add add obj to queue
-func (q *Queue) Add(item interface{}) {
-	q.workqueue.Add(item)
+func (q *queue) Add(item interface{}) {
+	q.Workqueue.Add(item)
 }
 
 // Start will set up the event handlers for types we are interested in, as well
 // as syncing informer caches and starting workers. It will block until stopCh
 // is closed, at which point it will shutdown the workqueue and wait for
 // workers to finish processing their current work items.
-func (q *Queue) Start(ctx context.Context) error {
+func (q *queue) Start(ctx context.Context) error {
 	defer utilruntime.HandleCrash()
-	defer q.workqueue.ShutDown()
+	defer q.Workqueue.ShutDown()
 
 	// Start the informer factories to begin populating the informer caches
-	klog.Infof("Starting %s WrapQueue workers", q.name)
+	klog.Infof("Starting %s WrapQueue workers", q.Name)
 	// Launch two workers to process Foo resources
-	for i := 0; i < q.threadiness; i++ {
-		go wait.UntilWithContext(ctx, q.runWorker, q.gotIntervel)
+	for i := 0; i < q.Threadiness; i++ {
+		go wait.UntilWithContext(ctx, q.runWorker, q.GotInterval)
 	}
 
-	klog.Infof("Started %s WrapQueue workers", q.name)
+	klog.Infof("Started %s WrapQueue workers", q.Name)
 	<-ctx.Done()
-	klog.Infof("Shutting down %s WrapQueue workers", q.name)
+	klog.Infof("Shutting down %s WrapQueue workers", q.Name)
 	return nil
 }
 
-func (q *Queue) runWorker(ctx context.Context) {
+func (q *queue) runWorker(ctx context.Context) {
 	for q.processNextWorkItem() {
 	}
 }
 
-func (q *Queue) processNextWorkItem() bool {
-	obj, shutdown := q.workqueue.Get()
+func (q *queue) processNextWorkItem() bool {
+	obj, shutdown := q.Workqueue.Get()
 	if shutdown {
 		return false
 	}
-	q.stats.Dequeue.Inc()
+	q.Stats.Dequeue.Inc()
 
 	start := time.Now()
 	defer func() {
-		q.stats.ReconcileDuration.Observe(float64(time.Since(start)))
+		q.Stats.ReconcileDuration.Observe(float64(time.Since(start)))
 	}()
 
 	// We wrap this block in a func so we can defer c.workqueue.Done.
@@ -103,42 +63,42 @@ func (q *Queue) processNextWorkItem() bool {
 		// not call Forget if a transient error occurs, instead the item is
 		// put back on the workqueue and attempted again after a back-off
 		// period.
-		defer q.workqueue.Done(obj)
+		defer q.Workqueue.Done(obj)
 
 		// TODO: invoke Reconcile
 		var req ktypes.NamespacedName
 		var ok bool
 		if req, ok = obj.(ktypes.NamespacedName); !ok {
-			q.workqueue.Forget(obj)
+			q.Workqueue.Forget(obj)
 			utilruntime.HandleError(fmt.Errorf("expected types.NamespacedName in workqueue but got %#v", obj))
-			q.stats.UnExpectedObj.Inc()
+			q.Stats.UnExpectedObj.Inc()
 			return nil
 		}
 
 		// invoke Reconcile
 		requeue, after, err := q.Do.Reconcile(req)
 		if err != nil {
-			q.workqueue.AddRateLimited(req)
-			q.stats.ReconcileFail.Inc()
-			q.stats.RequeueRateLimit.Inc()
+			q.Workqueue.AddRateLimited(req)
+			q.Stats.ReconcileFail.Inc()
+			q.Stats.RequeueRateLimit.Inc()
 			return nil
 		}
 
-		q.stats.ReconcileSucc.Inc()
+		q.Stats.ReconcileSucc.Inc()
 
 		if after > 0 {
-			q.workqueue.Forget(obj)
-			q.workqueue.AddAfter(req, after)
-			q.stats.RequeueAfter.Inc()
+			q.Workqueue.Forget(obj)
+			q.Workqueue.AddAfter(req, after)
+			q.Stats.RequeueAfter.Inc()
 			return nil
 		}
 		if requeue == api.Requeue {
-			q.workqueue.AddRateLimited(req)
-			q.stats.RequeueRateLimit.Inc()
+			q.Workqueue.AddRateLimited(req)
+			q.Stats.RequeueRateLimit.Inc()
 			return nil
 		}
 
-		q.workqueue.Forget(obj)
+		q.Workqueue.Forget(obj)
 		return nil
 	}(obj)
 

@@ -40,13 +40,18 @@ func (r *reconcileException) Reconcile(item ktypes.NamespacedName) (api.NeedRequ
 func TestNewQueueException(t *testing.T) {
 	t.Run("return error", func(t *testing.T) {
 		done := make(chan struct{}, 0)
-		queue, err := NewQueue(&reconcileException{done: done, count: 2, err: errors.New("mock error")}, "return_error", 1, time.Second)
+
+		qc := NewQueueConfig(&reconcileException{done: done, count: 2, err: errors.New("mock error")})
+		qc.Name = "return_error"
+		queue, err := Complted(qc).NewQueue()
 		if err != nil {
 			t.Error(err)
 			return
 		}
+
 		ctx, cancel := context.WithCancel(context.TODO())
 		defer cancel()
+
 		go func() {
 			queue.Start(ctx)
 		}()
@@ -57,7 +62,9 @@ func TestNewQueueException(t *testing.T) {
 
 	t.Run("return after", func(t *testing.T) {
 		done := make(chan struct{}, 0)
-		queue, err := NewQueue(&reconcileException{done: done, count: 5, after: time.Microsecond * 100}, "return_after", 1, time.Second)
+		qc := NewQueueConfig(&reconcileException{done: done, count: 5, after: time.Microsecond * 100})
+		qc.Name = "return_after"
+		queue, err := Complted(qc).NewQueue()
 		if err != nil {
 			t.Error(err)
 			return
@@ -74,7 +81,9 @@ func TestNewQueueException(t *testing.T) {
 
 	t.Run("return requeue", func(t *testing.T) {
 		done := make(chan struct{}, 0)
-		queue, err := NewQueue(&reconcileException{done: done, count: 2, requeue: api.Requeue}, "return_requeue", 1, time.Second)
+		qc := NewQueueConfig(&reconcileException{done: done, count: 2, requeue: api.Requeue})
+		qc.Name = "return_requeue"
+		queue, err := Complted(qc).NewQueue()
 		if err != nil {
 			t.Error(err)
 			return
@@ -91,7 +100,9 @@ func TestNewQueueException(t *testing.T) {
 
 	t.Run("type unexpected", func(t *testing.T) {
 		done := make(chan struct{}, 0)
-		queue, err := NewQueue(&reconcileException{done: done}, "unexpected_type", 1, time.Second)
+		qc := NewQueueConfig(&reconcileException{done: done})
+		qc.Name = "unexpected_type"
+		queue, err := Complted(qc).NewQueue()
 		if err != nil {
 			t.Error(err)
 			return
@@ -108,7 +119,9 @@ func TestNewQueueException(t *testing.T) {
 
 	t.Run("add after shutdown", func(t *testing.T) {
 		done := make(chan struct{}, 0)
-		queue, err := NewQueue(&reconcileException{done: done, sleep: time.Millisecond * 100}, "add_after_shutdown", 1, time.Second)
+		qc := NewQueueConfig(&reconcileException{done: done, sleep: time.Millisecond * 100})
+		qc.Name = "add_after_shutdown"
+		queue, err := Complted(qc).NewQueue()
 		if err != nil {
 			t.Error(err)
 			return
@@ -131,7 +144,9 @@ func TestNewMetrics(t *testing.T) {
 
 	done := make(chan struct{}, 0)
 	count := 100
-	queue, err := NewQueue(&reconcile{done: done, count: count, err: errors.New("mock error")}, "benchmark", 1, time.Second)
+	qc := NewQueueConfig(&reconcile{done: done, count: count, err: errors.New("mock error")})
+	qc.Name = "benchmark"
+	queue, err := Complted(qc).NewQueue()
 	if err != nil {
 		t.Error(err)
 		return

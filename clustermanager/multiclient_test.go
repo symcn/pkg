@@ -47,7 +47,9 @@ func TestNewMultiClient(t *testing.T) {
 		return
 	}
 
-	queue, err := workqueue.NewQueue(&reconcile{}, "mockreconcile", 1, time.Second*1)
+	qc := workqueue.NewQueueConfig(&reconcile{})
+	qc.Name = "mockreconcile"
+	queue, err := workqueue.Complted(qc).NewQueue()
 	if err != nil {
 		t.Error(err)
 		return
