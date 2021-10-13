@@ -78,9 +78,9 @@ func NewQueueConfig(reconcile api.Reconciler) *QueueConfig {
 }
 
 // NewWrapQueueConfig build queue which request with clustername
-func NewWrapQueueConfig(reconcile WrapReconciler) *QueueConfig {
+func NewWrapQueueConfig(name string, reconcile WrapReconciler) *QueueConfig {
 	qc := &QueueConfig{
-		Name:                  defaultQueueName,
+		Name:                  name,
 		GotInterval:           defaultGotInterval,
 		RateLimitTimeInterval: defaultRateLimitTimeInterval,
 		RateLimitTimeMax:      defaultRateLimitTimeMax,
@@ -96,6 +96,10 @@ func NewWrapQueueConfig(reconcile WrapReconciler) *QueueConfig {
 
 func Complted(qc *QueueConfig) *CompletedConfig {
 	cc := &CompletedConfig{&compltedConfig{qc}}
+
+	if cc.Name == "" {
+		cc.Name = defaultQueueName
+	}
 
 	if cc.GotInterval < defaultGotInterval {
 		cc.GotInterval = defaultGotInterval
