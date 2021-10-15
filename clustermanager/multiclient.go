@@ -38,12 +38,14 @@ func (mc *multiClient) Start(ctx context.Context) error {
 	for _, clsInfo := range clsList {
 		cli, err := mc.buildClient(clsInfo)
 		if err != nil {
-			return err
+			klog.Errorf("build client %s failed: %s (ignore!!!)", clsInfo.GetName(), err.Error())
+			// !import ignore err, because one cluster disconnected not affect connected cluster.
+			continue
 		}
 		err = start(mc.ctx, cli, mc.BeforStartHandleList)
 		if err != nil {
-			klog.Errorf("connected %s failed: %s", clsInfo.GetName(), err)
-			// ignore err, because one cluster disconnected not affect connected cluster.
+			klog.Errorf("start cluster %s failed: %s (ignore!!!)", clsInfo.GetName(), err.Error())
+			// !import ignore err, because one cluster disconnected not affect connected cluster.
 			continue
 		}
 		mc.MingleClientMap[clsInfo.GetName()] = cli
