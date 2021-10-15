@@ -42,7 +42,9 @@ func (mc *multiClient) Start(ctx context.Context) error {
 		}
 		err = start(mc.ctx, cli, mc.BeforStartHandleList)
 		if err != nil {
-			return err
+			klog.Errorf("connected %s failed: %s", clsInfo.GetName(), err)
+			// ignore err, because one cluster disconnected not affect connected cluster.
+			continue
 		}
 		mc.MingleClientMap[clsInfo.GetName()] = cli
 	}
