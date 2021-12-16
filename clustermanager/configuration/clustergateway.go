@@ -2,7 +2,6 @@ package configuration
 
 import (
 	"context"
-	"fmt"
 
 	clustetgatewayv1aplpha1 "github.com/oam-dev/cluster-gateway/pkg/apis/cluster/v1alpha1"
 	"github.com/symcn/api"
@@ -15,17 +14,18 @@ import (
 type cfgWithClusterGateway struct {
 	dynamicInterface dynamic.Interface
 	gvr              schema.GroupVersionResource
+	cfg              api.ClusterCfgInfo
 }
 
-func NewClusterCfgManagerWithGateway(dyanamicInterface dynamic.Interface) api.ClusterConfigurationManager {
+func NewClusterCfgManagerWithGateway(dyanamicInterface dynamic.Interface, cfg api.ClusterCfgInfo) api.ClusterConfigurationManager {
 	return &cfgWithClusterGateway{
 		dynamicInterface: dyanamicInterface,
 		gvr:              (&clustetgatewayv1aplpha1.ClusterGateway{}).GetGroupVersionResource(),
+		cfg:              cfg,
 	}
 }
 
 func (cg *cfgWithClusterGateway) GetAll() ([]api.ClusterCfgInfo, error) {
-	fmt.Println(cg.dynamicInterface.Resource(cg.gvr).Get(context.TODO(), "cluster1", metav1.GetOptions{}))
 	list, err := cg.dynamicInterface.Resource(cg.gvr).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func (cg *cfgWithClusterGateway) GetAll() ([]api.ClusterCfgInfo, error) {
 	for _, item := range list.Items {
 		err = runtime.DefaultUnstructuredConverter.FromUnstructured(item.UnstructuredContent(), clusterGateway)
 		if err == nil {
-			cfgList = append(cfgList, BuildClusterCfgInfo(item.GetName(), api.KubeConfigTypeInCluster, "", ""))
+			cfgList = append(cfgList, BuildClusterCfgInfo(item.GetName(), cg.cfg.GetKubeConfigType(), cg.cfg.GetKubeConfig(), cg.cfg.GetKubeContext()))
 		}
 
 	}

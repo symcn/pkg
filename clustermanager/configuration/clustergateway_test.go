@@ -87,7 +87,7 @@ func TestNewClusterCfgManagerWithGateway(t *testing.T) {
 	//         },
 	//     },
 	// )
-	cfgManager := NewClusterCfgManagerWithGateway(dyanamicInterface)
+	cfgManager := NewClusterCfgManagerWithGateway(dyanamicInterface, BuildDefaultClusterCfgInfo("demo"))
 	list, err := cfgManager.GetAll()
 	if err != nil {
 		t.Error(err)
