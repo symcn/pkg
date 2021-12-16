@@ -20,6 +20,8 @@ func buildClientCmd(cfg api.ClusterCfgInfo, setRestConfigFnList []api.SetKubeRes
 		return buildClientCmdWithRawConfig(cfg.GetKubeConfig(), cfg.GetKubeContext(), setRestConfigFnList)
 	case api.KubeConfigTypeFile:
 		return buildClientCmdWithFile(cfg.GetKubeConfig(), cfg.GetKubeContext(), setRestConfigFnList)
+	case api.KubeConfigTypeInCluster:
+		return buildClientCmdInCluster(setRestConfigFnList)
 	default:
 		return nil, errors.New("just supoort rawstring and file kubeconfig")
 	}
@@ -64,6 +66,17 @@ func buildClientCmdWithFile(kubeconf string, kubecontext string, setRestConfigFn
 		return nil, err
 	}
 
+	for _, fn := range setRestConfigFnList {
+		fn(restcfg)
+	}
+	return restcfg, nil
+}
+
+func buildClientCmdInCluster(setRestConfigFnList []api.SetKubeRestConfig) (*rest.Config, error) {
+	restcfg, err := rest.InClusterConfig()
+	if err != nil {
+		return nil, err
+	}
 	for _, fn := range setRestConfigFnList {
 		fn(restcfg)
 	}

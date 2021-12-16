@@ -53,6 +53,7 @@ type MultiClientConfig struct {
 	*Options
 	RebuildInterval   time.Duration
 	ClusterCfgManager api.ClusterConfigurationManager
+	BuildClientFunc   BuildClientFunc
 }
 
 type completeConfig struct {
@@ -67,6 +68,17 @@ func NewMultiClientConfig() *MultiClientConfig {
 	mcc := &MultiClientConfig{
 		Options:         DefaultOptions(),
 		RebuildInterval: defaultAutoRebuildInterval,
+		BuildClientFunc: BuildNormalClient,
+	}
+
+	return mcc
+}
+
+func NewProxyMultiClientConfig() *MultiClientConfig {
+	mcc := &MultiClientConfig{
+		Options:         DefaultOptions(),
+		RebuildInterval: defaultAutoRebuildInterval,
+		BuildClientFunc: BuildProxyClient,
 	}
 
 	return mcc
@@ -94,6 +106,10 @@ func Complete(mcc *MultiClientConfig) (*CompletedConfig, error) {
 		return nil, err
 	}
 
+	if mcc.BuildClientFunc == nil {
+		mcc.BuildClientFunc = BuildNormalClient
+	}
+
 	cc.MultiClientConfig.ClusterCfgManager = configuration.NewClusterCfgManagerWithCM(
 		cli.GetKubeInterface(),
 		defaultKubeconfigNamespace,
@@ -112,6 +128,7 @@ func (cc *CompletedConfig) New() (api.MultiMingleClient, error) {
 		MingleClientMap:      map[string]api.MingleClient{},
 		BeforStartHandleList: []api.BeforeStartHandle{},
 		stopCh:               make(chan struct{}, 0),
+		buildClientFunc:      cc.BuildClientFunc,
 	}
 	return mc, nil
 }

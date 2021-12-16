@@ -195,6 +195,10 @@ func TestMultiClientQueueLifeCycleWithClient(t *testing.T) {
 	case <-syncCh:
 	}
 
+	if len(multiCli.GetAll()) == 0 {
+		close(sameLifeCycle)
+	}
+
 	cancel()
 
 	select {

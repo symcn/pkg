@@ -12,6 +12,8 @@ import (
 	"k8s.io/klog/v2"
 )
 
+type BuildClientFunc func(api.ClusterCfgInfo, *Options) (api.MingleClient, error)
+
 type multiClient struct {
 	*CompletedConfig
 	MingleClientMap      map[string]api.MingleClient
@@ -20,6 +22,7 @@ type multiClient struct {
 	ctx                  context.Context
 	stopCh               chan struct{}
 	started              int32
+	buildClientFunc      BuildClientFunc
 }
 
 func (mc *multiClient) Start(ctx context.Context) error {
@@ -36,7 +39,7 @@ func (mc *multiClient) Start(ctx context.Context) error {
 	}
 
 	for _, clsInfo := range clsList {
-		cli, err := mc.buildClient(clsInfo)
+		cli, err := mc.buildClientFunc(clsInfo, mc.Options)
 		if err != nil {
 			klog.Errorf("build client %s failed: %s (ignore!!!)", clsInfo.GetName(), err.Error())
 			// !import ignore err, because one cluster disconnected not affect connected cluster.
@@ -129,7 +132,7 @@ func (mc *multiClient) Rebuild() error {
 		}
 
 		// build new client
-		cli, err := mc.buildClient(newClsInfo)
+		cli, err := mc.buildClientFunc(newClsInfo, mc.Options)
 		if err != nil {
 			klog.Error(err)
 			continue
@@ -172,6 +175,10 @@ func (mc *multiClient) Rebuild() error {
 	return nil
 }
 
-func (mc *multiClient) buildClient(clsInfo api.ClusterCfgInfo) (api.MingleClient, error) {
-	return NewMingleClient(clsInfo, mc.Options)
+func BuildNormalClient(clsInfo api.ClusterCfgInfo, opts *Options) (api.MingleClient, error) {
+	return NewMingleClient(clsInfo, opts)
+}
+
+func BuildProxyClient(clsInfo api.ClusterCfgInfo, opts *Options) (api.MingleClient, error) {
+	return NewProxyGatewayMingleClient(clsInfo, opts)
 }
