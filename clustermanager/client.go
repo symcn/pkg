@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	multicluster "github.com/oam-dev/cluster-gateway/pkg/apis/cluster/transport"
 	"github.com/symcn/api"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -51,6 +52,32 @@ func NewMingleClient(clusterCfg api.ClusterCfgInfo, opt *Options) (api.MingleCli
 	}
 
 	// 2. initialization
+	if err := cli.initialization(); err != nil {
+		return nil, err
+	}
+
+	return cli, nil
+}
+
+func NewProxyGatewayMingleClient(clusterCfg api.ClusterCfgInfo, opt *Options) (api.MingleClient, error) {
+	cli := &client{
+		Options:      opt,
+		clusterCfg:   clusterCfg,
+		stopCh:       make(chan struct{}, 0),
+		informerList: []rtcache.Informer{},
+	}
+
+	// 1. pre check
+	if err := cli.preCheck(); err != nil {
+		return nil, err
+	}
+
+	// 2. wrap cluster
+	cli.Options.SetKubeRestConfigFnList = append(cli.Options.SetKubeRestConfigFnList, func(config *rest.Config) {
+		config.Wrap(multicluster.NewProxyPathPrependingClusterGatewayRoundTripper(cli.clusterCfg.GetName()).NewRoundTripper)
+	})
+
+	// 3. initialization
 	if err := cli.initialization(); err != nil {
 		return nil, err
 	}
