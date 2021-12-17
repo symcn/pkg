@@ -786,8 +786,8 @@ github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
-github.com/symcn/api v0.0.0-20211216081211-a0fc07776c02 h1:w1uV8RwNlrdOC1LZLP9o6Txdu5FhwbUBteLdtyjubGU=
-github.com/symcn/api v0.0.0-20211216081211-a0fc07776c02/go.mod h1:5Y1r84vMOVMX9Dm9+DbeYLf4PwRqOxalmGHWAiwDua0=
+github.com/symcn/api v0.0.0-20211217033251-d3d9ac48f971 h1:Axt9YvoO25OyxyZDRhetWzVg0slUiqbVNS0rqLD3C5k=
+github.com/symcn/api v0.0.0-20211217033251-d3d9ac48f971/go.mod h1:5Y1r84vMOVMX9Dm9+DbeYLf4PwRqOxalmGHWAiwDua0=
 github.com/tdakkota/asciicheck v0.0.0-20200416200610-e657995f937b/go.mod h1:yHp0ai0Z9gUljN3o0xMhYJnH/IcvkdTBOX2fmJ93JEM=
 github.com/tetafro/godot v1.4.7/go.mod h1:LR3CJpxDVGlYOWn3ZZg1PgNZdTUvzsZWu8xaEohUpn8=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=

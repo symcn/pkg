@@ -1,4 +1,4 @@
-package clustermanager
+package client
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	multicluster "github.com/oam-dev/cluster-gateway/pkg/apis/cluster/transport"
 	"github.com/symcn/api"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
@@ -28,8 +28,9 @@ type client struct {
 	internalCancel context.CancelFunc
 	informerList   []rtcache.Informer
 
-	kubeRestConfig *rest.Config
-	kubeInterface  kubernetes.Interface
+	kubeRestConfig   *rest.Config
+	kubeInterface    kubernetes.Interface
+	dynamicInterface dynamic.Interface
 
 	ctrlRtManager     rtmanager.Manager
 	ctrlRtCache       rtcache.Cache
@@ -58,33 +59,6 @@ func NewMingleClient(clusterCfg api.ClusterCfgInfo, opt *Options) (api.MingleCli
 
 	return cli, nil
 }
-
-func NewProxyGatewayMingleClient(clusterCfg api.ClusterCfgInfo, opt *Options) (api.MingleClient, error) {
-	cli := &client{
-		Options:      opt,
-		clusterCfg:   clusterCfg,
-		stopCh:       make(chan struct{}, 0),
-		informerList: []rtcache.Informer{},
-	}
-
-	// 1. pre check
-	if err := cli.preCheck(); err != nil {
-		return nil, err
-	}
-
-	// 2. wrap cluster
-	cli.Options.SetKubeRestConfigFnList = append(cli.Options.SetKubeRestConfigFnList, func(config *rest.Config) {
-		config.Wrap(multicluster.NewProxyPathPrependingClusterGatewayRoundTripper(cli.clusterCfg.GetName()).NewRoundTripper)
-	})
-
-	// 3. initialization
-	if err := cli.initialization(); err != nil {
-		return nil, err
-	}
-
-	return cli, nil
-}
-
 func (c *client) preCheck() error {
 	if c.Options == nil {
 		return errors.New("options is empty")
@@ -131,12 +105,18 @@ func (c *client) initialization() error {
 	}
 
 	// Step 2. build kubernetes interface
-	c.kubeInterface, err = buildKubeInterface(c.kubeRestConfig)
+	c.kubeInterface, err = kubernetes.NewForConfig(c.kubeRestConfig)
 	if err != nil {
 		return fmt.Errorf("cluster %s build kubernetes interface failed %+v", c.clusterCfg.GetName(), err)
 	}
 
-	// Step 3. build controller-runtime manager
+	// Step 3. build dynamic interface
+	c.dynamicInterface, err = dynamic.NewForConfig(c.kubeRestConfig)
+	if err != nil {
+		return fmt.Errorf("cluster %s build dynamic interface failed %+v", c.clusterCfg.GetName(), err)
+	}
+
+	// Step 4. build controller-runtime manager
 	c.ctrlRtManager, err = controllers.NewManager(c.kubeRestConfig, rtmanager.Options{
 		Scheme:                  c.Scheme,
 		SyncPeriod:              &c.SyncPeriod,

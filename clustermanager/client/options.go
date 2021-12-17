@@ -1,4 +1,4 @@
-package clustermanager
+package client
 
 import (
 	"time"
@@ -69,16 +69,6 @@ func NewMultiClientConfig() *MultiClientConfig {
 		Options:         DefaultOptions(),
 		RebuildInterval: defaultAutoRebuildInterval,
 		BuildClientFunc: BuildNormalClient,
-	}
-
-	return mcc
-}
-
-func NewProxyMultiClientConfig() *MultiClientConfig {
-	mcc := &MultiClientConfig{
-		Options:         DefaultOptions(),
-		RebuildInterval: defaultAutoRebuildInterval,
-		BuildClientFunc: BuildProxyClient,
 	}
 
 	return mcc

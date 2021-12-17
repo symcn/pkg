@@ -1,4 +1,4 @@
-package clustermanager
+package client
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"github.com/symcn/pkg/clustermanager/handler"
 	"k8s.io/apimachinery/pkg/runtime"
 	ktypes "k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
@@ -193,6 +194,12 @@ func (c *client) GetKubeRestConfig() *rest.Config {
 // kubernetes.ClientSet impl kubernetes.Interface
 func (c *client) GetKubeInterface() kubernetes.Interface {
 	return c.kubeInterface
+}
+
+// GetDynamicInterface return dynamic Interface.
+// dynamic.ClientSet impl dynamic.Interface
+func (c *client) GetDynamicInterface() dynamic.Interface {
+	return c.dynamicInterface
 }
 
 // GetCtrlRtManager return controller-runtime manager object

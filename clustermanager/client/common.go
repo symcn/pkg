@@ -1,4 +1,4 @@
-package clustermanager
+package client
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/symcn/api"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
@@ -81,14 +80,6 @@ func buildClientCmdInCluster(setRestConfigFnList []api.SetKubeRestConfig) (*rest
 		fn(restcfg)
 	}
 	return restcfg, nil
-}
-
-func buildKubeInterface(restcfg *rest.Config) (kubernetes.Interface, error) {
-	clientSet, err := kubernetes.NewForConfig(restcfg)
-	if err != nil {
-		return nil, err
-	}
-	return clientSet, nil
 }
 
 func healthRequestWithTimeout(restCli rest.Interface, timeout time.Duration) (bool, error) {

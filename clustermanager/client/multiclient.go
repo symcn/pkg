@@ -1,4 +1,4 @@
-package clustermanager
+package client
 
 import (
 	"context"
@@ -177,8 +177,4 @@ func (mc *multiClient) Rebuild() error {
 
 func BuildNormalClient(clsInfo api.ClusterCfgInfo, opts *Options) (api.MingleClient, error) {
 	return NewMingleClient(clsInfo, opts)
-}
-
-func BuildProxyClient(clsInfo api.ClusterCfgInfo, opts *Options) (api.MingleClient, error) {
-	return NewProxyGatewayMingleClient(clsInfo, opts)
 }
