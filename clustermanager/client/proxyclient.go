@@ -107,3 +107,8 @@ func (pc *proxyClient) GetRuntimeClient() rtclient.Client {
 	}
 	return pc.runtimeInterface
 }
+
+// GetClusterCfgInfo returns cluster configuration info
+func (pc *proxyClient) GetClusterCfgInfo() api.ClusterCfgInfo {
+	return pc.clusterCfg
+}
