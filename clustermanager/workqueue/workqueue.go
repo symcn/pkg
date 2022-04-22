@@ -2,11 +2,9 @@ package workqueue
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/symcn/api"
-	ktypes "k8s.io/apimachinery/pkg/types"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/klog/v2"
@@ -65,50 +63,11 @@ func (q *queue) processNextWorkItem() bool {
 		// period.
 		defer q.Workqueue.Done(obj)
 
-		var req ktypes.NamespacedName
-		var ok bool
-		if req, ok = obj.(ktypes.NamespacedName); !ok {
-			q.Workqueue.Forget(obj)
-			utilruntime.HandleError(fmt.Errorf("expected types.NamespacedName in workqueue but got %#v", obj))
-			q.Stats.UnExpectedObj.Inc()
-			return nil
+		if f, ok := processFactory[q.RT]; ok {
+			return f(q, obj)
 		}
-
-		var (
-			requeue api.NeedRequeue
-			after   time.Duration
-			err     error
-		)
-		// invoke Reconcile
-		if q.doReconcileWithName {
-			// wrap reconcile
-			requeue, after, err = q.WrapDo.Reconcile(api.WrapNamespacedName{NamespacedName: req, QName: q.Name})
-		} else {
-			// standard reconcile
-			requeue, after, err = q.Do.Reconcile(req)
-		}
-		if err != nil {
-			q.Workqueue.AddRateLimited(req)
-			q.Stats.ReconcileFail.Inc()
-			q.Stats.RequeueRateLimit.Inc()
-			return nil
-		}
-
-		q.Stats.ReconcileSucc.Inc()
-
-		if after > 0 {
-			q.Workqueue.Forget(obj)
-			q.Workqueue.AddAfter(req, after)
-			q.Stats.RequeueAfter.Inc()
-			return nil
-		}
-		if requeue == api.Requeue {
-			q.Workqueue.AddRateLimited(req)
-			q.Stats.RequeueRateLimit.Inc()
-			return nil
-		}
-
 		q.Workqueue.Forget(obj)
+		klog.Error("Unsupport reconciler type.")
 		return nil
 	}(obj)
 
@@ -118,4 +77,32 @@ func (q *queue) processNextWorkItem() bool {
 	}
 
 	return true
+}
+
+func (q *queue) resultProcessing(requeue api.NeedRequeue, after time.Duration, err error, obj interface{}) error {
+	if err != nil {
+		klog.Errorf("[workqueue] reconcile %+v (qname:%s) failed: %+v", obj, q.Name, err)
+		// TODO: return error need add queue again?
+		q.Workqueue.AddRateLimited(obj)
+		q.Stats.ReconcileFail.Inc()
+		q.Stats.RequeueRateLimit.Inc()
+		return nil
+	}
+
+	q.Stats.ReconcileSucc.Inc()
+
+	if after > 0 {
+		q.Workqueue.Forget(obj)
+		q.Workqueue.AddAfter(obj, after)
+		q.Stats.RequeueAfter.Inc()
+		return nil
+	}
+	if requeue == api.Requeue {
+		q.Workqueue.AddRateLimited(obj)
+		q.Stats.RequeueRateLimit.Inc()
+		return nil
+	}
+
+	q.Workqueue.Forget(obj)
+	return nil
 }

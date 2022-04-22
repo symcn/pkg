@@ -20,6 +20,14 @@ var (
 	defaultThreadiness           = 1
 )
 
+type ReconcilerType int
+
+const (
+	Normal ReconcilerType = iota
+	Wrapper
+	Event
+)
+
 type QueueConfig struct {
 	Name                  string
 	GotInterval           time.Duration
@@ -28,10 +36,11 @@ type QueueConfig struct {
 	RateLimit             int
 	RateBurst             int
 	Threadiness           int
-	Do                    api.Reconciler
 
-	doReconcileWithName bool
-	WrapDo              api.WrapReconciler
+	RT      ReconcilerType
+	Do      api.Reconciler
+	WrapDo  api.WrapReconciler
+	EventDo api.EventReonciler
 }
 
 type compltedConfig struct {
@@ -49,6 +58,12 @@ type queue struct {
 	Stats     *stats
 }
 
+type queueObj struct {
+	*CompletedConfig
+	Workqueue workqueue.RateLimitingInterface
+	Stats     *stats
+}
+
 // NewQueueConfig build standard queue
 func NewQueueConfig(reconcile api.Reconciler) *QueueConfig {
 	qc := &QueueConfig{
@@ -59,6 +74,7 @@ func NewQueueConfig(reconcile api.Reconciler) *QueueConfig {
 		RateLimit:             defaultRateLimit,
 		RateBurst:             defaultRateBurst,
 		Threadiness:           defaultThreadiness,
+		RT:                    Normal,
 		Do:                    reconcile,
 	}
 
@@ -75,8 +91,25 @@ func NewWrapQueueConfig(name string, reconcile api.WrapReconciler) *QueueConfig 
 		RateLimit:             defaultRateLimit,
 		RateBurst:             defaultRateBurst,
 		Threadiness:           defaultThreadiness,
-		doReconcileWithName:   true,
+		RT:                    Wrapper,
 		WrapDo:                reconcile,
+	}
+
+	return qc
+}
+
+// NewEventQueueConfig build queue which request with clustername and event function
+func NewEventQueueConfig(name string, reconcile api.EventReonciler) *QueueConfig {
+	qc := &QueueConfig{
+		Name:                  name,
+		GotInterval:           defaultGotInterval,
+		RateLimitTimeInterval: defaultRateLimitTimeInterval,
+		RateLimitTimeMax:      defaultRateLimitTimeMax,
+		RateLimit:             defaultRateLimit,
+		RateBurst:             defaultRateBurst,
+		Threadiness:           defaultThreadiness,
+		RT:                    Event,
+		EventDo:               reconcile,
 	}
 
 	return qc
@@ -97,26 +130,31 @@ func Complted(qc *QueueConfig) *CompletedConfig {
 		cc.Threadiness = defaultThreadiness
 	}
 
-	if !cc.doReconcileWithName {
-		cc.WrapDo = nil
-	}
-
 	return cc
 }
 
 // NewQueue build queue
 func (cc *CompletedConfig) NewQueue() (api.WorkQueue, error) {
+	switch cc.RT {
+	case Normal:
+		if cc.Do == nil {
+			return nil, errors.New("NewQueueConfig should use standard Reconciler!")
+		}
+	case Wrapper:
+		if cc.WrapDo == nil {
+			return nil, errors.New("NewWrapQueueConfig should use WrapReconciler!")
+		}
+	case Event:
+		if cc.EventDo == nil {
+			return nil, errors.New("NewEventQueueConfig should use WrapReconciler!")
+		}
+	default:
+		return nil, errors.New("Not support ReconcilerType")
+	}
+
 	stats, err := buildStats(cc.Name)
 	if err != nil {
 		return nil, err
-	}
-
-	if !cc.doReconcileWithName && cc.Do == nil {
-		return nil, errors.New("NewQueueConfig should use standard Reconciler!")
-	}
-
-	if cc.doReconcileWithName && cc.WrapDo == nil {
-		return nil, errors.New("NewWrapQueueConfig should use WrapReconciler!")
 	}
 
 	q := &queue{
