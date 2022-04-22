@@ -43,7 +43,7 @@ func TestNewQueueException(t *testing.T) {
 
 		qc := NewQueueConfig(&reconcileException{done: done, count: 2, err: errors.New("mock error")})
 		qc.Name = "return_error"
-		queue, err := Complted(qc).NewQueue()
+		queue, err := Completed(qc).NewQueue()
 		if err != nil {
 			t.Error(err)
 			return
@@ -64,7 +64,7 @@ func TestNewQueueException(t *testing.T) {
 		done := make(chan struct{}, 0)
 		qc := NewQueueConfig(&reconcileException{done: done, count: 5, after: time.Microsecond * 100})
 		qc.Name = "return_after"
-		queue, err := Complted(qc).NewQueue()
+		queue, err := Completed(qc).NewQueue()
 		if err != nil {
 			t.Error(err)
 			return
@@ -83,7 +83,7 @@ func TestNewQueueException(t *testing.T) {
 		done := make(chan struct{}, 0)
 		qc := NewQueueConfig(&reconcileException{done: done, count: 2, requeue: api.Requeue})
 		qc.Name = "return_requeue"
-		queue, err := Complted(qc).NewQueue()
+		queue, err := Completed(qc).NewQueue()
 		if err != nil {
 			t.Error(err)
 			return
@@ -102,7 +102,7 @@ func TestNewQueueException(t *testing.T) {
 		done := make(chan struct{}, 0)
 		qc := NewQueueConfig(&reconcileException{done: done})
 		qc.Name = "unexpected_type"
-		queue, err := Complted(qc).NewQueue()
+		queue, err := Completed(qc).NewQueue()
 		if err != nil {
 			t.Error(err)
 			return
@@ -121,7 +121,7 @@ func TestNewQueueException(t *testing.T) {
 		done := make(chan struct{}, 0)
 		qc := NewQueueConfig(&reconcileException{done: done, sleep: time.Millisecond * 100})
 		qc.Name = "add_after_shutdown"
-		queue, err := Complted(qc).NewQueue()
+		queue, err := Completed(qc).NewQueue()
 		if err != nil {
 			t.Error(err)
 			return
@@ -146,7 +146,7 @@ func TestNewMetrics(t *testing.T) {
 	count := 100
 	qc := NewQueueConfig(&reconcile{done: done, count: count, err: errors.New("mock error")})
 	qc.Name = "benchmark"
-	queue, err := Complted(qc).NewQueue()
+	queue, err := Completed(qc).NewQueue()
 	if err != nil {
 		t.Error(err)
 		return

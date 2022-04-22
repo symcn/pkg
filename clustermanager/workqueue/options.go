@@ -43,13 +43,13 @@ type QueueConfig struct {
 	EventDo api.EventReonciler
 }
 
-type compltedConfig struct {
+type completedConfig struct {
 	*QueueConfig
 }
 
 // CompletedConfig wrapper workqueue
 type CompletedConfig struct {
-	*compltedConfig
+	*completedConfig
 }
 
 type queue struct {
@@ -115,8 +115,8 @@ func NewEventQueueConfig(name string, reconcile api.EventReonciler) *QueueConfig
 	return qc
 }
 
-func Complted(qc *QueueConfig) *CompletedConfig {
-	cc := &CompletedConfig{&compltedConfig{qc}}
+func Completed(qc *QueueConfig) *CompletedConfig {
+	cc := &CompletedConfig{&completedConfig{qc}}
 
 	if cc.Name == "" {
 		cc.Name = defaultQueueName

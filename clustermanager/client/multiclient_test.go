@@ -49,7 +49,7 @@ func TestNewMultiClient(t *testing.T) {
 
 	qc := workqueue.NewQueueConfig(&reconcile{})
 	qc.Name = "mockreconcile"
-	queue, err := workqueue.Complted(qc).NewQueue()
+	queue, err := workqueue.Completed(qc).NewQueue()
 	if err != nil {
 		t.Error(err)
 		return
@@ -144,7 +144,7 @@ func TestMultiClientQueueLifeCycleWithClient(t *testing.T) {
 	sameLifeCycle := make(chan struct{}, 0)
 
 	multiCli.RegistryBeforAfterHandler(func(ctx context.Context, cli api.MingleClient) error {
-		queue, err := workqueue.Complted(workqueue.NewWrapQueueConfig(cli.GetClusterCfgInfo().GetName(), &wrapreconcile{})).NewQueue()
+		queue, err := workqueue.Completed(workqueue.NewWrapQueueConfig(cli.GetClusterCfgInfo().GetName(), &wrapreconcile{})).NewQueue()
 		if err != nil {
 			return err
 		}
