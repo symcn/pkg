@@ -7,7 +7,7 @@ import (
 
 var (
 	metricTypePre      = "workqueue_"
-	workqueueLabelName = "name"
+	workqueueLabelName = "queuename"
 )
 
 // metrics key with labels
@@ -31,19 +31,22 @@ type stats struct {
 	RequeueRateLimit  prometheus.Counter
 }
 
-func buildStats(name string) (*stats, error) {
-	metric, err := metrics.NewMetrics(metricTypePre+name, nil)
+func buildStats(queueName string) (*stats, error) {
+	metric, err := metrics.NewMetrics(metricTypePre, nil)
 	if err != nil {
 		return nil, err
 	}
+	dynamicLabels := map[string]string{
+		workqueueLabelName: queueName,
+	}
 
 	return &stats{
-		Dequeue:           metric.Counter(DequeueTotal),
-		UnExpectedObj:     metric.Counter(UnExpectedObjTotal),
-		ReconcileSucc:     metric.Counter(ReconcileSuccTotal),
-		ReconcileFail:     metric.Counter(ReconcileFailTotal),
-		ReconcileDuration: metric.Summary(ReconcileTimeDuration, nil),
-		RequeueAfter:      metric.Counter(RequeueAfterTotal),
-		RequeueRateLimit:  metric.Counter(RequeueRateLimitTotal),
+		Dequeue:           metric.CounterWithLabels(DequeueTotal, dynamicLabels),
+		UnExpectedObj:     metric.CounterWithLabels(UnExpectedObjTotal, dynamicLabels),
+		ReconcileSucc:     metric.CounterWithLabels(ReconcileSuccTotal, dynamicLabels),
+		ReconcileFail:     metric.CounterWithLabels(ReconcileFailTotal, dynamicLabels),
+		ReconcileDuration: metric.SummaryWithLables(ReconcileTimeDuration, nil, dynamicLabels),
+		RequeueAfter:      metric.CounterWithLabels(RequeueAfterTotal, dynamicLabels),
+		RequeueRateLimit:  metric.CounterWithLabels(RequeueRateLimitTotal, dynamicLabels),
 	}, nil
 }

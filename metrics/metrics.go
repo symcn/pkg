@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -9,23 +10,24 @@ import (
 )
 
 // NewMetrics returns a metrics
-func NewMetrics(typ string, labels map[string]string) (api.Metrics, error) {
-	if len(labels) > MaxLabelCount {
+func NewMetrics(prefix string, constLabels map[string]string) (api.Metrics, error) {
+	if len(constLabels) > MaxLabelCount {
 		return nil, ErrLabelCountExceeded
 	}
 
 	defaultStore.l.Lock()
 	defer defaultStore.l.Unlock()
 
-	if col, ok := defaultStore.metrics[typ]; ok {
+	if col, ok := defaultStore.metrics[prefix]; ok {
 		return col, nil
 	}
 	stats := &metrics{
-		typ:    typ,
-		prefix: fullName(typ, labels) + ".",
-		col:    []prometheus.Collector{},
+		prefix:      strings.TrimRight(prefix, "_") + "_",
+		constLabels: constLabels,
+		col:         []prometheus.Collector{},
+		metricVec:   map[string]*prometheus.MetricVec{},
 	}
-	defaultStore.metrics[typ] = stats
+	defaultStore.metrics[prefix] = stats
 	return stats, nil
 }
 

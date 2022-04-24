@@ -83,11 +83,11 @@ func TestRegisterHTTPRoute(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	if !strings.Contains(body, "symcn_k1_v1_counter") {
+	if !strings.Contains(body, "symcn_counter") || !strings.Contains(body, `k1="v1"`) {
 		t.Error("counter not register")
 		return
 	}
-	if strings.Contains(body, "symcn_k1_v1_gauge") {
+	if strings.Contains(body, "symcn_gauge") {
 		t.Error("gauge not register, shouldn't exist")
 		return
 	}
@@ -99,7 +99,7 @@ func TestRegisterHTTPRoute(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	if !strings.Contains(body, "symcn_k1_v1_gauge") {
+	if !strings.Contains(body, "symcn_gauge") {
 		t.Error("gauge not register")
 		return
 	}
@@ -111,8 +111,70 @@ func TestRegisterHTTPRoute(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	if !strings.Contains(body, "symcn_k1_v1_histogram") {
+	if !strings.Contains(body, "symcn_histogram") {
 		t.Error("histogram not register")
+		return
+	}
+}
+
+func TestRegisterHTTPRouteWithDynamicLabels(t *testing.T) {
+	resetAll()
+	defer resetAll()
+
+	metrics, err := NewMetrics("symcn", nil)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	server := startHTTPPrometheus(t)
+	defer func() {
+		server.Shutdown(context.Background())
+	}()
+
+	interval := time.Millisecond * 100
+	metrics.CounterWithLabels("dynamic_label_counter", map[string]string{
+		"d1": "v1",
+	}).Add(1)
+	metrics.CounterWithLabels("dynamic_label_counter", map[string]string{
+		"d1": "v2",
+	}).Add(1)
+	time.Sleep(interval)
+	body, err := request()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if !strings.Contains(body, "symcn_dynamic_label_counter") ||
+		!strings.Contains(body, `d1="v1"`) ||
+		!strings.Contains(body, `d1="v2"`) {
+		t.Log(body)
+		t.Error("counter with dynamic label not register")
+		return
+	}
+
+	// delete with labels
+	if metrics.DeleteWithLabels("dynamic_label_counter", map[string]string{
+		"not_exist": "v2",
+	}) {
+		t.Error("delete not exist label failed")
+		return
+	}
+	if !metrics.DeleteWithLabels("dynamic_label_counter", map[string]string{
+		"d1": "v2",
+	}) {
+		t.Error("delete exist label failed")
+		return
+	}
+	time.Sleep(interval)
+	body, err = request()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if strings.Contains(body, "symcn_dynamic_label_counter") &&
+		strings.Contains(body, `d1="v2"`) {
+		t.Log(body)
+		t.Error("counter with dynamic label not register")
 		return
 	}
 }

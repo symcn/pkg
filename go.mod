@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/oam-dev/cluster-gateway v1.3.2
 	github.com/prometheus/client_golang v1.12.1
-	github.com/symcn/api v0.0.0-20220422083802-5e0c32b768cc
+	github.com/symcn/api v0.0.0-20220424064502-d5730c43c777
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306
 	k8s.io/api v0.23.5
 	k8s.io/apimachinery v0.23.5
