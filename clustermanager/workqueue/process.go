@@ -42,7 +42,7 @@ func processWrapReconcile(q *queue, obj interface{}) error {
 }
 
 func processEventReconcile(q *queue, obj interface{}) error {
-	req, ok := obj.(*api.EventRequest)
+	req, ok := obj.(api.EventRequest)
 	if !ok {
 		q.Workqueue.Forget(obj)
 		utilruntime.HandleError(fmt.Errorf("expected api.EventRequest in workqueue but got %#v", obj))
