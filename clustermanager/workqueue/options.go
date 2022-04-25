@@ -1,6 +1,7 @@
 package workqueue
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -29,6 +30,7 @@ const (
 )
 
 type QueueConfig struct {
+	ctx                   context.Context
 	Name                  string
 	GotInterval           time.Duration
 	RateLimitTimeInterval time.Duration

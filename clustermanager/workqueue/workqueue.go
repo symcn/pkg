@@ -23,6 +23,8 @@ func (q *queue) Start(ctx context.Context) error {
 	defer utilruntime.HandleCrash()
 	defer q.Workqueue.ShutDown()
 
+	q.ctx = ctx
+
 	// Start the informer factories to begin populating the informer caches
 	klog.Infof("Starting %s WrapQueue workers", q.Name)
 	// Launch two workers to process Foo resources

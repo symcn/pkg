@@ -25,7 +25,7 @@ func processReconcile(q *queue, obj interface{}) error {
 		q.Stats.UnExpectedObj.Inc()
 		return nil
 	}
-	requeue, after, err := q.Do.Reconcile(req)
+	requeue, after, err := q.Do.Reconcile(q.ctx, req)
 	return q.resultProcessing(requeue, after, err, obj)
 }
 
@@ -37,7 +37,7 @@ func processWrapReconcile(q *queue, obj interface{}) error {
 		q.Stats.UnExpectedObj.Inc()
 		return nil
 	}
-	requeue, after, err := q.WrapDo.Reconcile(api.WrapNamespacedName{NamespacedName: req, QName: q.Name})
+	requeue, after, err := q.WrapDo.Reconcile(q.ctx, api.WrapNamespacedName{NamespacedName: req, QName: q.Name})
 	return q.resultProcessing(requeue, after, err, obj)
 }
 
@@ -56,11 +56,11 @@ func processEventReconcile(q *queue, obj interface{}) error {
 	)
 	switch req.EventType {
 	case api.AddEvent:
-		requeue, after, err = q.EventDo.OnAdd(q.Name, req.NewResource)
+		requeue, after, err = q.EventDo.OnAdd(q.ctx, q.Name, req.NewResource)
 	case api.UpdateEvent:
-		requeue, after, err = q.EventDo.OnUpdate(q.Name, req.OldResource, req.NewResource)
+		requeue, after, err = q.EventDo.OnUpdate(q.ctx, q.Name, req.OldResource, req.NewResource)
 	case api.DeleteEvent:
-		requeue, after, err = q.EventDo.OnDelete(q.Name, req.NewResource)
+		requeue, after, err = q.EventDo.OnDelete(q.ctx, q.Name, req.NewResource)
 	default:
 		q.Workqueue.Forget(obj)
 		utilruntime.HandleError(fmt.Errorf("expected api.EventRequest Type but got %d", req.EventType))
