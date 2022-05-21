@@ -24,7 +24,7 @@ type reconcileException struct {
 	err     error
 }
 
-func (r *reconcileException) Reconcile(item ktypes.NamespacedName) (api.NeedRequeue, time.Duration, error) {
+func (r *reconcileException) Reconcile(ctx context.Context, item ktypes.NamespacedName) (api.NeedRequeue, time.Duration, error) {
 	klog.Infof("mock Reconcile:%s", item.String())
 	if r.sleep > 0 {
 		time.Sleep(r.sleep)
@@ -171,7 +171,7 @@ type reconcile struct {
 	err   error
 }
 
-func (r *reconcile) Reconcile(item ktypes.NamespacedName) (api.NeedRequeue, time.Duration, error) {
+func (r *reconcile) Reconcile(ctx context.Context, item ktypes.NamespacedName) (api.NeedRequeue, time.Duration, error) {
 	klog.Infof("mock Reconcile:%s", item.String())
 	r.count--
 	if r.count < 1 {

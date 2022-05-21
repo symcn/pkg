@@ -211,7 +211,7 @@ func TestMultiClientQueueLifeCycleWithClient(t *testing.T) {
 type reconcile struct {
 }
 
-func (r *reconcile) Reconcile(req ktypes.NamespacedName) (requeue api.NeedRequeue, after time.Duration, err error) {
+func (r *reconcile) Reconcile(ctx context.Context, req ktypes.NamespacedName) (requeue api.NeedRequeue, after time.Duration, err error) {
 	fmt.Println(req.String())
 	return api.Done, 0, nil
 }
@@ -219,7 +219,7 @@ func (r *reconcile) Reconcile(req ktypes.NamespacedName) (requeue api.NeedRequeu
 type wrapreconcile struct {
 }
 
-func (wr *wrapreconcile) Reconcile(req api.WrapNamespacedName) (requeue api.NeedRequeue, after time.Duration, err error) {
+func (wr *wrapreconcile) Reconcile(ctx context.Context, req api.WrapNamespacedName) (requeue api.NeedRequeue, after time.Duration, err error) {
 	fmt.Println(req.NamespacedName.String())
 	return api.Done, 0, nil
 }
