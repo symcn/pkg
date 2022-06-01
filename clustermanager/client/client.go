@@ -43,7 +43,7 @@ func NewMingleClient(clusterCfg api.ClusterCfgInfo, opt *Options) (api.MingleCli
 	cli := &client{
 		Options:      opt,
 		clusterCfg:   clusterCfg,
-		stopCh:       make(chan struct{}, 0),
+		stopCh:       make(chan struct{}),
 		informerList: []rtcache.Informer{},
 	}
 

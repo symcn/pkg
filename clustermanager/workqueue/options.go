@@ -140,18 +140,18 @@ func (cc *CompletedConfig) NewQueue() (api.WorkQueue, error) {
 	switch cc.RT {
 	case Normal:
 		if cc.Do == nil {
-			return nil, errors.New("NewQueueConfig should use standard Reconciler!")
+			return nil, errors.New("NewQueueConfig should use standard Reconciler")
 		}
 	case Wrapper:
 		if cc.WrapDo == nil {
-			return nil, errors.New("NewWrapQueueConfig should use WrapReconciler!")
+			return nil, errors.New("newWrapQueueConfig should use WrapReconciler")
 		}
 	case Event:
 		if cc.EventDo == nil {
-			return nil, errors.New("NewEventQueueConfig should use WrapReconciler!")
+			return nil, errors.New("NewEventQueueConfig should use WrapReconciler")
 		}
 	default:
-		return nil, errors.New("Not support ReconcilerType")
+		return nil, errors.New("not support ReconcilerType")
 	}
 
 	stats, err := buildStats(cc.Name)

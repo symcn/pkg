@@ -13,7 +13,7 @@ import (
 func TestNewMetrics(t *testing.T) {
 	defer resetAll()
 
-	metrics, err := NewMetrics("symcn", map[string]string{
+	_, err := NewMetrics("symcn", map[string]string{
 		"k1":  "v1",
 		"k2":  "v2",
 		"k3":  "v3",
@@ -41,7 +41,7 @@ func TestNewMetrics(t *testing.T) {
 		return
 	}
 
-	metrics, err = NewMetrics("symcn", map[string]string{
+	metrics, err := NewMetrics("symcn", map[string]string{
 		"k1": "v1",
 	})
 	if err != nil {

@@ -87,7 +87,7 @@ func TestNewMultiClient(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
 
-	ch := make(chan struct{}, 0)
+	ch := make(chan struct{})
 	go func() {
 		err = queue.Start(ctx)
 		if err != nil {
@@ -103,7 +103,7 @@ func TestNewMultiClient(t *testing.T) {
 		close(ch)
 	}()
 
-	syncCh := make(chan struct{}, 0)
+	syncCh := make(chan struct{})
 	go func() {
 		for !multiCli.HasSynced() {
 			t.Log("wait sync")
@@ -141,7 +141,7 @@ func TestMultiClientQueueLifeCycleWithClient(t *testing.T) {
 		return
 	}
 
-	sameLifeCycle := make(chan struct{}, 0)
+	sameLifeCycle := make(chan struct{})
 
 	multiCli.RegistryBeforAfterHandler(func(ctx context.Context, cli api.MingleClient) error {
 		queue, err := workqueue.Completed(workqueue.NewWrapQueueConfig(cli.GetClusterCfgInfo().GetName(), &wrapreconcile{})).NewQueue()
@@ -172,7 +172,7 @@ func TestMultiClientQueueLifeCycleWithClient(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.TODO())
 
-	ch := make(chan struct{}, 0)
+	ch := make(chan struct{})
 	go func() {
 		err = multiCli.Start(ctx)
 		if err != nil {
@@ -181,7 +181,7 @@ func TestMultiClientQueueLifeCycleWithClient(t *testing.T) {
 		close(ch)
 	}()
 
-	syncCh := make(chan struct{}, 0)
+	syncCh := make(chan struct{})
 	go func() {
 		for !multiCli.HasSynced() {
 			t.Log("wait sync")

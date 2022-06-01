@@ -37,7 +37,7 @@ func NewClusterCfgManagerWithPath(dir string, suffix string, kubeConfigType api.
 func (cp *cfgWithPath) GetAll() ([]api.ClusterCfgInfo, error) {
 	files, err := ioutil.ReadDir(cp.dir)
 	if err != nil {
-		return nil, fmt.Errorf("Get clusterconfiguration with path failed, open %s err %+v", cp.dir, err)
+		return nil, fmt.Errorf("get clusterconfiguration with path failed, open %s err %+v", cp.dir, err)
 	}
 
 	list := make([]api.ClusterCfgInfo, 0, len(files))
@@ -56,7 +56,7 @@ func (cp *cfgWithPath) GetAll() ([]api.ClusterCfgInfo, error) {
 		case api.KubeConfigTypeRawString:
 			data, err := ioutil.ReadFile(path)
 			if err != nil {
-				return nil, fmt.Errorf("Get clusterconfiguration read %s err %+v", path, err)
+				return nil, fmt.Errorf("get clusterconfiguration read %s err %+v", path, err)
 			}
 			list = append(list, BuildClusterCfgInfo(file.Name(), cp.kubeConfigType, string(data), ""))
 

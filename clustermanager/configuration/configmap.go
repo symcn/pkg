@@ -50,7 +50,7 @@ func (cc *cfgWithConfigmap) GetAll() ([]api.ClusterCfgInfo, error) {
 
 	cmlist, err := cc.kubeInterface.CoreV1().ConfigMaps(cc.namespace).List(ctx, metav1.ListOptions{LabelSelector: strings.Join(labelSelectors, ",")})
 	if err != nil {
-		return nil, fmt.Errorf("Get clusterconfiguration with configmap failed namespace:%s label:%+v err:%+v", cc.namespace, cc.label, err)
+		return nil, fmt.Errorf("get clusterconfiguration with configmap failed namespace:%s label:%+v err:%+v", cc.namespace, cc.label, err)
 	}
 	return Configmap2ClusterCfgInfo(cmlist, cc.dataKey, cc.statusKey), nil
 }

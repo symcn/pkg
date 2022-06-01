@@ -56,11 +56,9 @@ func (mc *multiClient) Start(ctx context.Context) error {
 
 	go mc.autoRebuild()
 
-	select {
-	case <-ctx.Done():
-		close(mc.stopCh)
-		return err
-	}
+	<-ctx.Done()
+	close(mc.stopCh)
+	return err
 }
 
 func start(ctx context.Context, cli api.MingleClient, beforStartHandleList []api.BeforeStartHandle) error {

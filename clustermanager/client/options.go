@@ -117,7 +117,7 @@ func (cc *CompletedConfig) New() (api.MultiMingleClient, error) {
 		CompletedConfig:      cc,
 		MingleClientMap:      map[string]api.MingleClient{},
 		BeforStartHandleList: []api.BeforeStartHandle{},
-		stopCh:               make(chan struct{}, 0),
+		stopCh:               make(chan struct{}),
 		buildClientFunc:      cc.BuildClientFunc,
 	}
 	return mc, nil

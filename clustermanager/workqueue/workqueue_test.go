@@ -39,7 +39,7 @@ func (r *reconcileException) Reconcile(ctx context.Context, item ktypes.Namespac
 
 func TestNewQueueException(t *testing.T) {
 	t.Run("return error", func(t *testing.T) {
-		done := make(chan struct{}, 0)
+		done := make(chan struct{})
 
 		qc := NewQueueConfig(&reconcileException{done: done, count: 2, err: errors.New("mock error")})
 		qc.Name = "return_error"
@@ -61,7 +61,7 @@ func TestNewQueueException(t *testing.T) {
 	})
 
 	t.Run("return after", func(t *testing.T) {
-		done := make(chan struct{}, 0)
+		done := make(chan struct{})
 		qc := NewQueueConfig(&reconcileException{done: done, count: 5, after: time.Microsecond * 100})
 		qc.Name = "return_after"
 		queue, err := Completed(qc).NewQueue()
@@ -80,7 +80,7 @@ func TestNewQueueException(t *testing.T) {
 	})
 
 	t.Run("return requeue", func(t *testing.T) {
-		done := make(chan struct{}, 0)
+		done := make(chan struct{})
 		qc := NewQueueConfig(&reconcileException{done: done, count: 2, requeue: api.Requeue})
 		qc.Name = "return_requeue"
 		queue, err := Completed(qc).NewQueue()
@@ -99,7 +99,7 @@ func TestNewQueueException(t *testing.T) {
 	})
 
 	t.Run("type unexpected", func(t *testing.T) {
-		done := make(chan struct{}, 0)
+		done := make(chan struct{})
 		qc := NewQueueConfig(&reconcileException{done: done})
 		qc.Name = "unexpected_type"
 		queue, err := Completed(qc).NewQueue()
@@ -118,7 +118,7 @@ func TestNewQueueException(t *testing.T) {
 	})
 
 	t.Run("add after shutdown", func(t *testing.T) {
-		done := make(chan struct{}, 0)
+		done := make(chan struct{})
 		qc := NewQueueConfig(&reconcileException{done: done, sleep: time.Millisecond * 100})
 		qc.Name = "add_after_shutdown"
 		queue, err := Completed(qc).NewQueue()
@@ -142,7 +142,7 @@ func TestNewMetrics(t *testing.T) {
 		server.Shutdown(context.Background())
 	}()
 
-	done := make(chan struct{}, 0)
+	done := make(chan struct{})
 	count := 100
 	qc := NewQueueConfig(&reconcile{done: done, count: count, err: errors.New("mock error")})
 	qc.Name = "benchmark"

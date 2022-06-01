@@ -5,7 +5,6 @@ import (
 
 	"github.com/symcn/api"
 	"k8s.io/klog/v2"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	rtclient "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -32,7 +31,7 @@ func NewGengerationChangedPredicate() api.Predicate {
 // NamespacePredicate filter namespace
 func NamespacePredicate(nslist ...string) api.Predicate {
 	return &base{
-		handler: func(obj client.Object) bool {
+		handler: func(obj rtclient.Object) bool {
 			for _, ns := range nslist {
 				if ns == "*" || strings.EqualFold(ns, obj.GetNamespace()) {
 					return true
@@ -46,7 +45,7 @@ func NamespacePredicate(nslist ...string) api.Predicate {
 // LabelsKeyPredicate filter labels key not exists
 func LabelsKeyPredicate(keys ...string) api.Predicate {
 	return &base{
-		handler: func(obj client.Object) bool {
+		handler: func(obj rtclient.Object) bool {
 			if len(obj.GetLabels()) == 0 {
 				return false
 			}
