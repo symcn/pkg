@@ -26,7 +26,7 @@ type stats struct {
 	UnExpectedObj     prometheus.Counter
 	ReconcileSucc     prometheus.Counter
 	ReconcileFail     prometheus.Counter
-	ReconcileDuration prometheus.Histogram
+	ReconcileDuration prometheus.Summary
 	RequeueAfter      prometheus.Counter
 	RequeueRateLimit  prometheus.Counter
 }
