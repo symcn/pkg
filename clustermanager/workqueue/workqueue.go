@@ -52,6 +52,7 @@ func (q *queue) processNextWorkItem() bool {
 
 	start := time.Now()
 	defer func() {
+		klog.V(4).Info("===== queue->%s reconcile %s duration: %s", q.Name, time.Since(start))
 		q.Stats.ReconcileDuration.Observe(float64(time.Since(start)))
 	}()
 
