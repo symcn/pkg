@@ -16,7 +16,7 @@ import (
 )
 
 type FakeClient struct {
-	stop chan struct{}
+	StopCh chan struct{}
 
 	*Options
 	ClusterCfg api.ClusterCfgInfo
@@ -49,7 +49,7 @@ type FakeClient struct {
 
 func NewFackeClient(clusterCfg api.ClusterCfgInfo, opt *Options) (api.MingleClient, error) {
 	return &FakeClient{
-		stop:       make(chan struct{}),
+		StopCh:     make(chan struct{}),
 		Options:    opt,
 		ClusterCfg: clusterCfg,
 	}, nil
@@ -252,12 +252,12 @@ func (f *FakeClient) Start(ctx context.Context) error {
 	select {
 	case <-ctx.Done():
 		return nil
-	case <-f.stop:
+	case <-f.StopCh:
 		return nil
 	}
 }
 
 // Stop implements api.MingleClient
 func (f *FakeClient) Stop() {
-	close(f.stop)
+	close(f.StopCh)
 }
