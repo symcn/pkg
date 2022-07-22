@@ -118,6 +118,66 @@ func TestNewMultiClient(t *testing.T) {
 	}
 }
 
+func TestAutoRebuild(t *testing.T) {
+
+	activeClientIndex := []int{}
+
+	cfgManager := &configuration.FakeConfiguration{
+		GetAllFunc: func() ([]api.ClusterCfgInfo, error) {
+			clusterCfgList := []api.ClusterCfgInfo{}
+			for _, i := range activeClientIndex {
+				clusterCfgList = append(clusterCfgList, configuration.NewFakeClusterCfgInfo("", api.KubeConfigTypeRawString, "", fmt.Sprintf("cluster-%d", i)))
+			}
+			return clusterCfgList, nil
+		},
+	}
+
+	mc := &multiClient{
+		CompletedConfig: &CompletedConfig{
+			&completeConfig{
+				MultiClientConfig: &MultiClientConfig{
+					RebuildInterval:   time.Second * 1,
+					ClusterCfgManager: cfgManager,
+				},
+			},
+		},
+		stopCh:          make(chan struct{}),
+		buildClientFunc: NewFackeClient,
+	}
+	ctx, cancel := context.WithCancel(context.TODO())
+	defer cancel()
+
+	go mc.Start(ctx)
+
+	activeClientIndex = []int{1, 2, 3}
+	time.Sleep(time.Second * 5)
+	if len(mc.MingleClientMap) != 3 {
+		t.Errorf("current client should be %d, but got %d", 3, len(mc.MingleClientMap))
+		return
+	}
+
+	activeClientIndex = []int{1, 3}
+	time.Sleep(time.Second * 5)
+	if len(mc.MingleClientMap) != 2 {
+		t.Errorf("current client should be %d, but got %d", 2, len(mc.MingleClientMap))
+		return
+	}
+
+	activeClientIndex = []int{1, 3, 5}
+	time.Sleep(time.Second * 5)
+	if len(mc.MingleClientMap) != 3 {
+		t.Errorf("current client should be %d, but got %d", 3, len(mc.MingleClientMap))
+		return
+	}
+
+	activeClientIndex = []int{1, 3, 6}
+	time.Sleep(time.Second * 5)
+	if len(mc.MingleClientMap) != 3 {
+		t.Errorf("current client should be %d, but got %d", 3, len(mc.MingleClientMap))
+		return
+	}
+}
+
 func TestMultiClientQueueLifeCycleWithClient(t *testing.T) {
 	cli, err := NewMingleClient(configuration.BuildDefaultClusterCfgInfo("meta"), mockOpt)
 	if err != nil {

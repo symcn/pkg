@@ -51,6 +51,9 @@ func (mc *multiClient) Start(ctx context.Context) error {
 			// !import ignore err, because one cluster disconnected not affect connected cluster.
 			continue
 		}
+		if len(mc.MingleClientMap) == 0 {
+			mc.MingleClientMap = make(map[string]api.MingleClient)
+		}
 		mc.MingleClientMap[clsInfo.GetName()] = cli
 	}
 
@@ -159,6 +162,7 @@ func (mc *multiClient) Rebuild() error {
 			change++
 			// not exist, should stop
 			go func(cli api.MingleClient) {
+				klog.Infof("stop mingle client:%s", cli.GetClusterCfgInfo().GetName())
 				cli.Stop()
 			}(oldCli)
 		}
