@@ -5,6 +5,9 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/tools/cache"
 )
 
 func TestExceptionNewMingleClient(t *testing.T) {
@@ -132,6 +135,32 @@ func TestExceptionNewMingleClient(t *testing.T) {
 			if !cli.IsConnected() {
 				t.Error("exist kubeconfig should connected Kubernetes cluster")
 			}
+		}
+	})
+
+	t.Run("repeat watch", func(t *testing.T) {
+		cli, err := NewMingleClient(DefaultClusterCfgInfo(""), DefaultOptions())
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		ctx, cancel := context.WithTimeout(context.TODO(), time.Second*2)
+		defer cancel()
+
+		cli.AddResourceEventHandler(&corev1.Pod{}, cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				t.Log("1")
+			},
+		})
+		cli.AddResourceEventHandler(&corev1.Pod{}, cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				t.Log("2")
+			},
+		})
+
+		err = cli.Start(ctx)
+		if err != nil {
+			t.Error(err)
 		}
 	})
 }
