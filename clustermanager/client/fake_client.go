@@ -12,10 +12,13 @@ import (
 	"k8s.io/client-go/tools/cache"
 	rtcache "sigs.k8s.io/controller-runtime/pkg/cache"
 	rtclient "sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	rtmanager "sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
 type FakeClient struct {
+	rtclient.WithWatch
+
 	StopCh chan struct{}
 
 	*Options
@@ -49,6 +52,7 @@ type FakeClient struct {
 
 func NewFackeClient(clusterCfg api.ClusterCfgInfo, opt *Options) (api.MingleClient, error) {
 	return &FakeClient{
+		WithWatch:  fake.NewFakeClient(),
 		StopCh:     make(chan struct{}),
 		Options:    opt,
 		ClusterCfg: clusterCfg,
@@ -60,13 +64,14 @@ func (f *FakeClient) AddResourceEventHandler(obj rtclient.Object, handler cache.
 	if f.AddResourceEventHandlerFunc == nil {
 		return nil
 	}
+
 	return f.AddResourceEventHandlerFunc(obj, handler)
 }
 
 // Create implements api.MingleClient
 func (f *FakeClient) Create(obj rtclient.Object, opts ...rtclient.CreateOption) error {
 	if f.CreateFunc == nil {
-		return nil
+		return f.WithWatch.Create(context.TODO(), obj, opts...)
 	}
 	return f.CreateFunc(obj, opts...)
 }
@@ -74,7 +79,7 @@ func (f *FakeClient) Create(obj rtclient.Object, opts ...rtclient.CreateOption) 
 // Delete implements api.MingleClient
 func (f *FakeClient) Delete(obj rtclient.Object, opts ...rtclient.DeleteOption) error {
 	if f.DeleteFunc == nil {
-		return nil
+		return f.WithWatch.Delete(context.TODO(), obj, opts...)
 	}
 	return f.DeleteFunc(obj, opts...)
 }
@@ -82,7 +87,7 @@ func (f *FakeClient) Delete(obj rtclient.Object, opts ...rtclient.DeleteOption) 
 // DeleteAllOf implements api.MingleClient
 func (f *FakeClient) DeleteAllOf(obj rtclient.Object, opts ...rtclient.DeleteAllOfOption) error {
 	if f.DeleteAllOfFunc == nil {
-		return nil
+		return f.WithWatch.DeleteAllOf(context.TODO(), obj, opts...)
 	}
 	return f.DeleteAllOfFunc(obj, opts...)
 }
@@ -90,7 +95,7 @@ func (f *FakeClient) DeleteAllOf(obj rtclient.Object, opts ...rtclient.DeleteAll
 // Get implements api.MingleClient
 func (f *FakeClient) Get(key ktypes.NamespacedName, obj rtclient.Object) error {
 	if f.GetFunc == nil {
-		return nil
+		return f.WithWatch.Get(context.TODO(), key, obj)
 	}
 	return f.GetFunc(key, obj)
 }
@@ -114,7 +119,7 @@ func (f *FakeClient) HasSynced() bool {
 // List implements api.MingleClient
 func (f *FakeClient) List(obj rtclient.ObjectList, opts ...rtclient.ListOption) error {
 	if f.ListFunc == nil {
-		return nil
+		return f.WithWatch.List(context.TODO(), obj, opts...)
 	}
 	return f.ListFunc(obj, opts...)
 }
@@ -122,7 +127,7 @@ func (f *FakeClient) List(obj rtclient.ObjectList, opts ...rtclient.ListOption) 
 // Patch implements api.MingleClient
 func (f *FakeClient) Patch(obj rtclient.Object, patch rtclient.Patch, opts ...rtclient.PatchOption) error {
 	if f.PatchFunc == nil {
-		return nil
+		return f.WithWatch.Patch(context.TODO(), obj, patch, opts...)
 	}
 	return f.PatchFunc(obj, patch, opts...)
 }
@@ -138,7 +143,7 @@ func (f *FakeClient) SetIndexField(obj rtclient.Object, field string, extractVal
 // StatusUpdate implements api.MingleClient
 func (f *FakeClient) StatusUpdate(obj rtclient.Object, opts ...rtclient.UpdateOption) error {
 	if f.StatusUpdateFunc == nil {
-		return nil
+		return f.WithWatch.Status().Update(context.TODO(), obj, opts...)
 	}
 	return f.StatusUpdateFunc(obj, opts...)
 }
@@ -146,7 +151,7 @@ func (f *FakeClient) StatusUpdate(obj rtclient.Object, opts ...rtclient.UpdateOp
 // Update implements api.MingleClient
 func (f *FakeClient) Update(obj rtclient.Object, opts ...rtclient.UpdateOption) error {
 	if f.UpdateFunc == nil {
-		return nil
+		return f.WithWatch.Update(context.TODO(), obj, opts...)
 	}
 	return f.UpdateFunc(obj, opts...)
 }
