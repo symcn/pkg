@@ -32,10 +32,10 @@ func (c *client) GetInformer(obj rtclient.Object) (rtcache.Informer, error) {
 }
 
 // AddResourceEventHandler
-// 1. GetInformer
-// 2. Adds an event handler to the shared informer using the shared informer's resync
-//	period.  Events to a single handler are delivered sequentially, but there is no coordination
-//	between different handlers.
+//  1. GetInformer
+//  2. Adds an event handler to the shared informer using the shared informer's resync
+//     period.  Events to a single handler are delivered sequentially, but there is no coordination
+//     between different handlers.
 func (c *client) AddResourceEventHandler(obj rtclient.Object, handler cache.ResourceEventHandler) error {
 	informer, err := c.GetInformer(obj)
 	if err != nil {
