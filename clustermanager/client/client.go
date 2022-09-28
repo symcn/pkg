@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync/atomic"
 	"time"
 
 	"github.com/symcn/api"
@@ -24,7 +25,7 @@ type client struct {
 	clusterCfg     api.ClusterCfgInfo
 	stopCh         chan struct{}
 	connected      bool
-	started        bool
+	started        int32
 	internalCancel context.CancelFunc
 	informerList   []rtcache.Informer
 
@@ -137,7 +138,7 @@ func (c *client) initialization() error {
 }
 
 func (c *client) autoHealthCheck() {
-	handler := func() {
+	clusterHealthCheckOnce := func() {
 		ok, err := healthRequestWithTimeout(c.kubeInterface.Discovery().RESTClient(), c.ExecTimeout)
 		if err != nil {
 			klog.Errorf("cluster %s check healthy failed %+v", c.clusterCfg.GetName(), err)
@@ -146,7 +147,7 @@ func (c *client) autoHealthCheck() {
 	}
 
 	// first check
-	handler()
+	clusterHealthCheckOnce()
 
 	// it will pointless when interval less than 1s
 	if c.HealthCheckInterval < time.Second {
@@ -160,7 +161,7 @@ func (c *client) autoHealthCheck() {
 	for {
 		select {
 		case <-timer.C:
-			handler()
+			clusterHealthCheckOnce()
 		case <-c.stopCh:
 			return
 		}
@@ -170,10 +171,9 @@ func (c *client) autoHealthCheck() {
 // Start client and blocks until the context is cancelled
 // Returns an error if there is an error starting
 func (c *client) Start(ctx context.Context) error {
-	if c.started {
+	if !atomic.CompareAndSwapInt32(&c.started, 0, 1) {
 		return fmt.Errorf("client %s can't repeat start", c.clusterCfg.GetName())
 	}
-	c.started = true
 
 	var err error
 	ctx, c.internalCancel = context.WithCancel(ctx)

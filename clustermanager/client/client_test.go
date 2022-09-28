@@ -163,6 +163,35 @@ func TestExceptionNewMingleClient(t *testing.T) {
 			t.Error(err)
 		}
 	})
+
+	t.Run("leader election test", func(t *testing.T) {
+		opts := DefaultOptions()
+		opts.LeaderElection = true
+		opts.LeaderElectionID = "symops"
+		opts.LeaderElectionNamespace = "default"
+
+		cli1, err := NewMingleClient(DefaultClusterCfgInfo(""), opts)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		ctx1, cancel1 := context.WithTimeout(context.TODO(), time.Second*30)
+		defer cancel1()
+
+		t.Log("start client1")
+		go cli1.Start(ctx1)
+
+		cli2, err := NewMingleClient(DefaultClusterCfgInfo(""), opts)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		ctx2, cancel2 := context.WithTimeout(context.TODO(), time.Minute*1)
+		defer cancel2()
+
+		t.Log("start client2")
+		cli2.Start(ctx2)
+	})
 }
 
 func TestNewMingleClient(t *testing.T) {

@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+	"sync/atomic"
 
 	"github.com/symcn/api"
 	"github.com/symcn/pkg/clustermanager/handler"
@@ -75,7 +76,7 @@ func (c *client) Watch(obj rtclient.Object, queue api.WorkQueue, evtHandler api.
 // HasSynced return true if all informers underlying store has synced
 // !import if informerlist is empty, will return true
 func (c *client) HasSynced() bool {
-	if !c.started {
+	if atomic.LoadInt32(&c.started) != 1 {
 		// if not start, the informer will not synced
 		return false
 	}
