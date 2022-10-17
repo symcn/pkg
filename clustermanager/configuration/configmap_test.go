@@ -61,7 +61,7 @@ func TestConfigmap2ClusterCfgInfo(t *testing.T) {
 		},
 	}
 
-	list := Configmap2ClusterCfgInfo(cmlist, dataKey, statusKey)
+	list := configmap2ClusterCfgInfo(cmlist, dataKey, statusKey)
 	if len(list) != 2 {
 		t.Errorf("expect return 2 list, but got %d", len(list))
 		return

@@ -24,6 +24,7 @@ type cfgWithConfigmap struct {
 	dataKey       string
 	statusKey     string
 	timeout       time.Duration
+	filter        FilterHandler
 }
 
 // NewClusterCfgManagerWithCM build cfgWithConfigmap
@@ -34,6 +35,18 @@ func NewClusterCfgManagerWithCM(kubeInterface kubernetes.Interface, namespace st
 		label:         label,
 		dataKey:       dataKey,
 		statusKey:     statusKey,
+	}
+}
+
+// NewClusterCfgManagerWithCM build cfgWithConfigmap
+func NewClusterCfgManagerWithCMWithFilter(kubeInterface kubernetes.Interface, namespace string, label map[string]string, dataKey, statusKey string, filter FilterHandler) api.ClusterConfigurationManager {
+	return &cfgWithConfigmap{
+		kubeInterface: kubeInterface,
+		namespace:     namespace,
+		label:         label,
+		dataKey:       dataKey,
+		statusKey:     statusKey,
+		filter:        filter,
 	}
 }
 
@@ -52,11 +65,14 @@ func (cc *cfgWithConfigmap) GetAll() ([]api.ClusterCfgInfo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("get clusterconfiguration with configmap failed namespace:%s label:%+v err:%+v", cc.namespace, cc.label, err)
 	}
-	return Configmap2ClusterCfgInfo(cmlist, cc.dataKey, cc.statusKey), nil
+
+	list := configmap2ClusterCfgInfo(cmlist, cc.dataKey, cc.statusKey)
+	list = filterClusterInfo(list, cc.filter)
+	return list, nil
 }
 
-// Configmap2ClusterCfgInfo configmaplist to clusterconfiguration info
-func Configmap2ClusterCfgInfo(cmlist *v1.ConfigMapList, dataKey, statusKey string) []api.ClusterCfgInfo {
+// configmap2ClusterCfgInfo configmaplist to clusterconfiguration info
+func configmap2ClusterCfgInfo(cmlist *v1.ConfigMapList, dataKey, statusKey string) []api.ClusterCfgInfo {
 	list := make([]api.ClusterCfgInfo, 0, len(cmlist.Items))
 
 	for _, cm := range cmlist.Items {

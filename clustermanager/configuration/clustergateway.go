@@ -15,6 +15,7 @@ type cfgWithClusterGateway struct {
 	dynamicInterface dynamic.Interface
 	gvr              schema.GroupVersionResource
 	cfg              api.ClusterCfgInfo
+	filter           FilterHandler
 }
 
 func NewClusterCfgManagerWithGateway(dyanamicInterface dynamic.Interface, cfg api.ClusterCfgInfo) api.ClusterConfigurationManager {
@@ -22,6 +23,15 @@ func NewClusterCfgManagerWithGateway(dyanamicInterface dynamic.Interface, cfg ap
 		dynamicInterface: dyanamicInterface,
 		gvr:              (&clustetgatewayv1aplpha1.ClusterGateway{}).GetGroupVersionResource(),
 		cfg:              cfg,
+	}
+}
+
+func NewClusterCfgManagerWithGatewayWithFilter(dyanamicInterface dynamic.Interface, cfg api.ClusterCfgInfo, filter FilterHandler) api.ClusterConfigurationManager {
+	return &cfgWithClusterGateway{
+		dynamicInterface: dyanamicInterface,
+		gvr:              (&clustetgatewayv1aplpha1.ClusterGateway{}).GetGroupVersionResource(),
+		cfg:              cfg,
+		filter:           filter,
 	}
 }
 
@@ -40,5 +50,8 @@ func (cg *cfgWithClusterGateway) GetAll() ([]api.ClusterCfgInfo, error) {
 		}
 
 	}
+
+	cfgList = filterClusterInfo(cfgList, cg.filter)
+
 	return cfgList, nil
 }

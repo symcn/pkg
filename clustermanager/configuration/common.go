@@ -40,3 +40,19 @@ func (c *clusterCfgInfo) GetKubeContext() string {
 func BuildDefaultClusterCfgInfo(name string) api.ClusterCfgInfo {
 	return BuildClusterCfgInfo(name, api.KubeConfigTypeFile, "", "")
 }
+
+type FilterHandler func(clusterInfo api.ClusterCfgInfo) bool
+
+func filterClusterInfo(list []api.ClusterCfgInfo, filter FilterHandler) (result []api.ClusterCfgInfo) {
+	if filter == nil {
+		return list
+	}
+
+	result = make([]api.ClusterCfgInfo, 0, len(list))
+	for _, info := range list {
+		if filter(info) {
+			result = append(result, info)
+		}
+	}
+	return result
+}

@@ -15,6 +15,7 @@ type cfgWithPath struct {
 	dir            string
 	suffix         string
 	kubeConfigType api.KubeConfigType
+	filter         FilterHandler
 }
 
 // NewClusterCfgManagerWithPath build cfgWithPath
@@ -31,6 +32,24 @@ func NewClusterCfgManagerWithPath(dir string, suffix string, kubeConfigType api.
 		dir:            dir,
 		suffix:         suffix,
 		kubeConfigType: kubeConfigType,
+	}, nil
+}
+
+// NewClusterCfgManagerWithPath build cfgWithPath
+func NewClusterCfgManagerWithPathWithFilter(dir string, suffix string, kubeConfigType api.KubeConfigType, filter FilterHandler) (api.ClusterConfigurationManager, error) {
+	s, err := os.Stat(dir)
+	if err != nil {
+		return nil, fmt.Errorf("NewClusterCfgManagerWithPath %s is not exist %+v", dir, err)
+	}
+	if !s.IsDir() {
+		return nil, fmt.Errorf("NewClusterCfgManagerWithPath %s is not directory", dir)
+	}
+
+	return &cfgWithPath{
+		dir:            dir,
+		suffix:         suffix,
+		kubeConfigType: kubeConfigType,
+		filter:         filter,
 	}, nil
 }
 
@@ -64,6 +83,8 @@ func (cp *cfgWithPath) GetAll() ([]api.ClusterCfgInfo, error) {
 			klog.Warningf("Get clusterconfiguration with path not support type %s", cp.kubeConfigType)
 		}
 	}
+
+	list = filterClusterInfo(list, cp.filter)
 
 	return list, nil
 }
