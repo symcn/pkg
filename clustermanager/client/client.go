@@ -194,6 +194,7 @@ func (c *client) Start(ctx context.Context) error {
 	case <-ctx.Done():
 		return err
 	case <-c.stopCh:
+		c.Stop()
 		return err
 	}
 }
