@@ -3,7 +3,7 @@ module github.com/symcn/pkg
 go 1.19
 
 require (
-	github.com/oam-dev/cluster-gateway v1.5.0
+	github.com/oam-dev/cluster-gateway v1.6.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.19.0
 	github.com/prometheus/client_golang v1.13.0
@@ -13,7 +13,7 @@ require (
 	k8s.io/apimachinery v0.25.2
 	k8s.io/client-go v0.25.2
 	k8s.io/klog/v2 v2.70.1
-	sigs.k8s.io/controller-runtime v0.13.0
+	sigs.k8s.io/controller-runtime v0.13.1
 )
 
 require (
@@ -79,12 +79,12 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
-	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
+	golang.org/x/net v0.3.1-0.20221206200815-1e63c2f08a10 // indirect
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/term v0.3.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220502173005-c8bf987b8c21 // indirect
@@ -102,7 +102,7 @@ require (
 	k8s.io/utils v0.0.0-20220728103510-ee6ede2d64ed // indirect
 	open-cluster-management.io/api v0.5.1-0.20220112073018-2d280a97a052 // indirect
 	sigs.k8s.io/apiserver-network-proxy v0.0.30 // indirect
-	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.32 // indirect
+	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.33 // indirect
 	sigs.k8s.io/apiserver-runtime v1.1.0 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
@@ -110,10 +110,9 @@ require (
 )
 
 replace (
-	k8s.io/api => k8s.io/api v0.24.6
-	k8s.io/apimachinery => k8s.io/apimachinery v0.24.6
-	k8s.io/apiserver => k8s.io/apiserver v0.24.6
-	k8s.io/client-go => k8s.io/client-go v0.24.6
-	k8s.io/component-base => k8s.io/component-base v0.24.6
+	k8s.io/apimachinery => k8s.io/apimachinery v0.24.9
+	k8s.io/apiserver => k8s.io/apiserver v0.24.9
+	k8s.io/client-go => k8s.io/client-go v0.24.9
+	k8s.io/component-base => k8s.io/component-base v0.24.9
 	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20220328201542-3ee0da9b0b42
 )
