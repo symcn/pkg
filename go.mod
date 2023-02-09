@@ -3,7 +3,7 @@ module github.com/symcn/pkg
 go 1.19
 
 require (
-	github.com/oam-dev/cluster-gateway v1.7.0
+	github.com/oam-dev/cluster-gateway v0.0.0-20230207080204-0e394d541c44
 	github.com/onsi/ginkgo/v2 v2.8.0
 	github.com/onsi/gomega v1.26.0
 	github.com/prometheus/client_golang v1.14.0
@@ -109,7 +109,6 @@ require (
 
 replace (
 	cloud.google.com/go => cloud.google.com/go v0.100.2
-	github.com/oam-dev/cluster-gateway => github.com/champly/cluster-gateway v0.0.0-20230206062530-66c1277f5893
 	k8s.io/apimachinery => k8s.io/apimachinery v0.25.6
 	k8s.io/apiserver => k8s.io/apiserver v0.25.6
 	k8s.io/client-go => k8s.io/client-go v0.25.6
