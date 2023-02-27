@@ -136,7 +136,7 @@ func TestAutoRebuild(t *testing.T) {
 		CompletedConfig: &CompletedConfig{
 			&completeConfig{
 				MultiClientConfig: &MultiClientConfig{
-					RebuildInterval:   time.Second * 1,
+					FetchInterval:     time.Second * 1,
 					ClusterCfgManager: cfgManager,
 				},
 			},
