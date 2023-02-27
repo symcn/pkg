@@ -13,7 +13,7 @@ var (
 	defaultSyncPeriod          = time.Minute * 30
 	defaultHealthCheckInterval = time.Second * 5
 	defaultExecTimeout         = time.Second * 5
-	defaultAutoRebuildInterval = time.Minute * 5
+	defaultAutoFetchInterval   = time.Minute * 5
 
 	defaultManagerClusterName  = "symcn-manager"
 	defaultKubeconfigNamespace = "default"
@@ -51,7 +51,7 @@ type Options struct {
 
 type MultiClientConfig struct {
 	*Options
-	RebuildInterval   time.Duration
+	FetchInterval     time.Duration
 	ClusterCfgManager api.ClusterConfigurationManager
 	BuildClientFunc   BuildClientFunc
 }
@@ -67,7 +67,7 @@ type CompletedConfig struct {
 func NewMultiClientConfig() *MultiClientConfig {
 	mcc := &MultiClientConfig{
 		Options:         DefaultOptions(),
-		RebuildInterval: defaultAutoRebuildInterval,
+		FetchInterval:   defaultAutoFetchInterval,
 		BuildClientFunc: BuildNormalClient,
 	}
 
