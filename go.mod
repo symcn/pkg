@@ -7,7 +7,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.8.4
 	github.com/onsi/gomega v1.27.2
 	github.com/prometheus/client_golang v1.14.0
-	github.com/symcn/api v0.0.0-20230302052443-f113db4783fc
+	github.com/symcn/api v0.0.0-20230302113838-3649c67515b4
 	golang.org/x/time v0.3.0
 	k8s.io/api v0.26.2
 	k8s.io/apimachinery v0.26.2
@@ -99,7 +99,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apiextensions-apiserver v0.26.1 // indirect
 	k8s.io/apiserver v0.26.1 // indirect
-	k8s.io/component-base v0.26.2 // indirect
+	k8s.io/component-base v0.26.1 // indirect
 	k8s.io/klog v1.0.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
 	k8s.io/utils v0.0.0-20221128185143-99ec85e7a448 // indirect
@@ -112,10 +112,4 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace (
-	cloud.google.com/go => cloud.google.com/go v0.100.2
-	k8s.io/apimachinery => k8s.io/apimachinery v0.26.2
-	k8s.io/apiserver => k8s.io/apiserver v0.26.2
-	k8s.io/client-go => k8s.io/client-go v0.26.2
-	k8s.io/component-base => k8s.io/component-base v0.26.2
-)
+replace cloud.google.com/go => cloud.google.com/go v0.100.2
