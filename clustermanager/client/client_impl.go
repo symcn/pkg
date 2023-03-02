@@ -127,7 +127,7 @@ func (c *client) Update(obj rtclient.Object, opts ...rtclient.UpdateOption) erro
 // Update updates the fields corresponding to the status subresource for the
 // given obj with timeout. obj must be a struct pointer so that obj can be updated
 // with the content returned by the Server.
-func (c *client) StatusUpdate(obj rtclient.Object, opts ...rtclient.UpdateOption) error {
+func (c *client) StatusUpdate(obj rtclient.Object, opts ...rtclient.SubResourceUpdateOption) error {
 	ctx, cancel := context.WithTimeout(context.TODO(), c.ExecTimeout)
 	defer cancel()
 

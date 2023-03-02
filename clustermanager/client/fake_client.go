@@ -34,7 +34,7 @@ type FakeClient struct {
 	ListFunc                    func(obj rtclient.ObjectList, opts ...rtclient.ListOption) error
 	PatchFunc                   func(obj rtclient.Object, patch rtclient.Patch, opts ...rtclient.PatchOption) error
 	SetIndexFieldFunc           func(obj rtclient.Object, field string, extractValue rtclient.IndexerFunc) error
-	StatusUpdateFunc            func(obj rtclient.Object, opts ...rtclient.UpdateOption) error
+	StatusUpdateFunc            func(obj rtclient.Object, opts ...rtclient.SubResourceUpdateOption) error
 	UpdateFunc                  func(obj rtclient.Object, opts ...rtclient.UpdateOption) error
 	AnnotatedEventfFunc         func(object runtime.Object, annotations map[string]string, eventtype string, reason string, messageFmt string, args ...interface{})
 	EventFunc                   func(object runtime.Object, eventtype string, reason string, message string)
@@ -141,7 +141,7 @@ func (f *FakeClient) SetIndexField(obj rtclient.Object, field string, extractVal
 }
 
 // StatusUpdate implements api.MingleClient
-func (f *FakeClient) StatusUpdate(obj rtclient.Object, opts ...rtclient.UpdateOption) error {
+func (f *FakeClient) StatusUpdate(obj rtclient.Object, opts ...rtclient.SubResourceUpdateOption) error {
 	if f.StatusUpdateFunc == nil {
 		return f.WithWatch.Status().Update(context.TODO(), obj, opts...)
 	}
