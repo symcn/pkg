@@ -16,14 +16,14 @@ type BuildClientFunc func(api.ClusterCfgInfo, *Options) (api.MingleClient, error
 
 type multiClient struct {
 	*CompletedConfig
-	MingleClientMap      map[string]api.MingleClient
-	BeforStartHandleList []api.BeforeStartHandle
-	l                    sync.Mutex
-	ctx                  context.Context
-	stopCh               chan struct{}
-	started              int32
-	buildClientFunc      BuildClientFunc
-	watcher              chan api.Watcher
+	MingleClientMap         map[string]api.MingleClient
+	BeforStartHandleList    []api.BeforeStartHandle
+	l                       sync.Mutex
+	ctx                     context.Context
+	stopCh                  chan struct{}
+	started                 int32
+	buildClientFunc         BuildClientFunc
+	clusterEventHandlerList []api.ClusterEventHandler
 }
 
 func (mc *multiClient) Start(ctx context.Context) error {
@@ -71,17 +71,11 @@ func (mc *multiClient) loopFetchClient() error {
 
 func (mc *multiClient) clean() {
 	close(mc.stopCh)
-	if mc.watcher != nil {
-		close(mc.watcher)
-	}
 }
 
-// SubscriptionClientEvent implements api.MultiMingleClient
-func (mc *multiClient) SubscriptionClientEvent(watcher chan api.Watcher) {
-	if mc.watcher == nil {
-		mc.watcher = watcher
-	}
-	klog.Warningln("Repeat SubscriptionClientEvent, skip it.")
+// AddClusterEventHandler implements api.MultiMingleClient
+func (mc *multiClient) AddClusterEventHandler(handler api.ClusterEventHandler) {
+	mc.clusterEventHandlerList = append(mc.clusterEventHandlerList, handler)
 }
 
 // FetchClientInfoOnce get clusterconfigurationmanager GetAll and rebuild clusterClientMap
@@ -164,8 +158,10 @@ func (mc *multiClient) buildNewCluster(newClsInfo api.ClusterCfgInfo, options *O
 		return nil, err
 	}
 
-	if mc.watcher != nil {
-		mc.watcher <- api.Watcher{Type: api.AddCluster, Client: cli}
+	if len(mc.clusterEventHandlerList) > 0 {
+		for _, handler := range mc.clusterEventHandlerList {
+			handler.OnAdd(mc.ctx, cli)
+		}
 	}
 
 	return cli, nil
@@ -191,8 +187,10 @@ func start(ctx context.Context, cli api.MingleClient, beforStartHandleList []api
 }
 
 func (mc *multiClient) stopCluster(cli api.MingleClient) {
-	if mc.watcher != nil {
-		mc.watcher <- api.Watcher{Type: api.DeleteCluster, Client: cli}
+	if len(mc.clusterEventHandlerList) > 0 {
+		for _, handler := range mc.clusterEventHandlerList {
+			handler.OnDelete(mc.ctx, cli)
+		}
 	}
 	cli.Stop()
 }

@@ -279,8 +279,8 @@ github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.8.0 h1:pSgiaMZlXftHpm5L7V1+rVB+AZJydKsMxsQBIJw4PKk=
-github.com/symcn/api v0.0.0-20230302113838-3649c67515b4 h1:m1Yse+ztMaS3ntqTs6veksSM7pICAzAdr3FUE9bUQfM=
-github.com/symcn/api v0.0.0-20230302113838-3649c67515b4/go.mod h1:uOHdNZqDk8Lazn00XowrERLsnJWMdKBoHJRtwOyXCNk=
+github.com/symcn/api v0.0.0-20230306060747-22c27b2d7c4d h1:4Wp5mEBnnXQ+8S3LHNtXwXj2xYqItLsu5cH529YRJS0=
+github.com/symcn/api v0.0.0-20230306060747-22c27b2d7c4d/go.mod h1:uOHdNZqDk8Lazn00XowrERLsnJWMdKBoHJRtwOyXCNk=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20201229170055-e5319fda7802 h1:uruHq4dN7GR16kFc5fp3d1RIYzJW5onx8Ybykw2YQFA=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 h1:eY9dn8+vbi4tKz5Qo6v2eYzo7kUS51QINcR5jNpbZS8=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
