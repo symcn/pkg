@@ -75,6 +75,13 @@ func (mc *multiClient) clean() {
 
 // AddClusterEventHandler implements api.MultiMingleClient
 func (mc *multiClient) AddClusterEventHandler(handler api.ClusterEventHandler) {
+	mc.l.Lock()
+	defer mc.l.Unlock()
+
+	// ignore multi client start already, and AddClusterEventHandler invoke get empty client.
+	for _, cli := range mc.MingleClientMap {
+		handler.OnAdd(mc.ctx, cli)
+	}
 	mc.clusterEventHandlerList = append(mc.clusterEventHandlerList, handler)
 }
 
