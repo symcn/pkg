@@ -68,7 +68,7 @@ func TestNewMultiClient(t *testing.T) {
 	 *         return
 	 *     }
 	 */
-	multiCli.RegistryBeforAfterHandler(func(ctx context.Context, cli api.MingleClient) error {
+	multiCli.RegistryBeforeStartHandler(func(ctx context.Context, cli api.MingleClient) error {
 		eventHandler := &mockEventHandler{}
 		err := cli.Watch(&corev1.Pod{}, queue, eventHandler, predicate.NamespacePredicate("*"))
 		if err != nil {
@@ -203,7 +203,7 @@ func TestMultiClientQueueLifeCycleWithClient(t *testing.T) {
 
 	sameLifeCycle := make(chan struct{})
 
-	multiCli.RegistryBeforAfterHandler(func(ctx context.Context, cli api.MingleClient) error {
+	multiCli.RegistryBeforeStartHandler(func(ctx context.Context, cli api.MingleClient) error {
 		queue, err := workqueue.Completed(workqueue.NewWrapQueueConfig(cli.GetClusterCfgInfo().GetName(), &wrapreconcile{})).NewQueue()
 		if err != nil {
 			return err

@@ -7,7 +7,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.8.4
 	github.com/onsi/gomega v1.27.2
 	github.com/prometheus/client_golang v1.14.0
-	github.com/symcn/api v0.0.0-20230306060747-22c27b2d7c4d
+	github.com/symcn/api v0.0.0-20230320095059-43b7b2db3a9e
 	golang.org/x/time v0.3.0
 	k8s.io/api v0.26.2
 	k8s.io/apimachinery v0.26.2

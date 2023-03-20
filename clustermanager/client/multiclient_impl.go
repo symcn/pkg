@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"sync/atomic"
@@ -17,13 +18,13 @@ func (mc *multiClient) AddResourceEventHandler(obj rtclient.Object, handler cach
 	mc.l.Lock()
 	defer mc.l.Unlock()
 
-	var err error
-	for _, cli := range mc.MingleClientMap {
-		err = cli.AddResourceEventHandler(obj, handler)
+	mc.RegistryBeforeStartHandler(func(ctx context.Context, cli api.MingleClient) error {
+		err := cli.AddResourceEventHandler(obj, handler)
 		if err != nil {
 			return fmt.Errorf("cluster %s AddResourceEventHandler failed %+v", cli.GetClusterCfgInfo().GetName(), err)
 		}
-	}
+		return nil
+	})
 	return nil
 }
 
@@ -32,13 +33,13 @@ func (mc *multiClient) TriggerSync(obj rtclient.Object) error {
 	mc.l.Lock()
 	defer mc.l.Unlock()
 
-	var err error
-	for _, cli := range mc.MingleClientMap {
-		_, err = cli.GetInformer(obj)
+	mc.RegistryBeforeStartHandler(func(ctx context.Context, cli api.MingleClient) error {
+		_, err := cli.GetInformer(obj)
 		if err != nil {
 			return fmt.Errorf("cluster %s TriggerSync failed %+v", cli.GetClusterCfgInfo().GetName(), err)
 		}
-	}
+		return nil
+	})
 	return nil
 }
 
@@ -47,13 +48,13 @@ func (mc *multiClient) SetIndexField(obj rtclient.Object, field string, extractV
 	mc.l.Lock()
 	defer mc.l.Unlock()
 
-	var err error
-	for _, cli := range mc.MingleClientMap {
-		err = cli.SetIndexField(obj, field, extractValue)
+	mc.RegistryBeforeStartHandler(func(ctx context.Context, cli api.MingleClient) error {
+		err := cli.SetIndexField(obj, field, extractValue)
 		if err != nil {
 			return fmt.Errorf("cluster %s SetIndexField failed %+v", cli.GetClusterCfgInfo().GetName(), err)
 		}
-	}
+		return nil
+	})
 	return nil
 }
 
@@ -144,7 +145,7 @@ func (mc *multiClient) GetAllConnected() []api.MingleClient {
 	return list
 }
 
-// RegistryBeforAfterHandler registry BeforeStartHandle
-func (mc *multiClient) RegistryBeforAfterHandler(handler api.BeforeStartHandle) {
+// RegistryBeforeStartHandler registry BeforeStartHandle
+func (mc *multiClient) RegistryBeforeStartHandler(handler api.BeforeStartHandle) {
 	mc.BeforStartHandleList = append(mc.BeforStartHandleList, handler)
 }
