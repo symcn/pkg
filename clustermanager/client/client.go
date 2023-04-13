@@ -126,6 +126,13 @@ func (c *client) initialization() error {
 		LeaderElectionID:        c.LeaderElectionID,
 		MetricsBindAddress:      "0",
 		HealthProbeBindAddress:  "0",
+
+		// webhook configuration
+		// TODO: expose most field.
+		Port:    c.Port,
+		Host:    c.Host,
+		CertDir: c.CertDir,
+		TLSOpts: c.TLSOpts,
 	})
 	if err != nil {
 		return fmt.Errorf("cluster %s build controller-runtime manager failed: %+v", c.clusterCfg.GetName(), err)

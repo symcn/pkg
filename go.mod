@@ -7,13 +7,13 @@ require (
 	github.com/onsi/ginkgo/v2 v2.8.4
 	github.com/onsi/gomega v1.27.2
 	github.com/prometheus/client_golang v1.14.0
-	github.com/symcn/api v0.0.0-20230320095059-43b7b2db3a9e
+	github.com/symcn/api v0.0.0-20230413053039-a52597328637
 	golang.org/x/time v0.3.0
-	k8s.io/api v0.26.2
-	k8s.io/apimachinery v0.26.2
-	k8s.io/client-go v0.26.2
+	k8s.io/api v0.26.4
+	k8s.io/apimachinery v0.26.4
+	k8s.io/client-go v0.26.4
 	k8s.io/klog/v2 v2.90.1
-	sigs.k8s.io/controller-runtime v0.14.5
+	sigs.k8s.io/controller-runtime v0.14.6
 )
 
 require (

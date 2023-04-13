@@ -1,6 +1,7 @@
 package client
 
 import (
+	"crypto/tls"
 	"time"
 
 	"github.com/symcn/api"
@@ -36,6 +37,8 @@ var (
 
 // Options options
 type Options struct {
+	WebhookOptions
+
 	Scheme                  *runtime.Scheme
 	LeaderElection          bool
 	LeaderElectionNamespace string
@@ -47,6 +50,26 @@ type Options struct {
 	QPS                     int
 	Burst                   int
 	SetKubeRestConfigFnList []api.SetKubeRestConfig
+}
+
+// WebhookOptions webhook configuration for controller-manager
+type WebhookOptions struct {
+	// Port is the port that the webhook server serves at.
+	// It is used to set webhook.Server.Port if WebhookServer is not set.
+	Port int
+	// Host is the hostname that the webhook server binds to.
+	// It is used to set webhook.Server.Host if WebhookServer is not set.
+	Host string
+
+	// CertDir is the directory that contains the server key and certificate.
+	// If not set, webhook server would look up the server key and certificate in
+	// {TempDir}/k8s-webhook-server/serving-certs. The server key and certificate
+	// must be named tls.key and tls.crt, respectively.
+	// It is used to set webhook.Server.CertDir if WebhookServer is not set.
+	CertDir string
+
+	// TLSOpts is used to allow configuring the TLS config used for the webhook server.
+	TLSOpts []func(*tls.Config)
 }
 
 type MultiClientConfig struct {
