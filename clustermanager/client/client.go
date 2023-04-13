@@ -188,7 +188,7 @@ func (c *client) Start(ctx context.Context) error {
 	go func() {
 		err = c.ctrlRtManager.Start(ctx)
 		if err != nil {
-			klog.Errorf("start cluster %s error %+v", c.clusterCfg.GetName(), err)
+			klog.Errorf("start cluster %s error: %+v", c.clusterCfg.GetName(), err)
 			close(c.stopCh)
 		}
 		klog.Warningf("cluster %s stoped.", c.clusterCfg.GetName())
