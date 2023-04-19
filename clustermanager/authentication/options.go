@@ -8,3 +8,10 @@ type CertInfo struct {
 	TLSKey  []byte
 	TLSCert []byte
 }
+
+type SignedWay string
+
+var (
+	SelfSigned SignedWay = "SelfSigned"
+	CSRSigned  SignedWay = "CSRSigned"
+)
