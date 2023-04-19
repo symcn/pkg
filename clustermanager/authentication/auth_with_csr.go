@@ -24,7 +24,7 @@ var (
 	controllName  = "SymcnAuthentication"
 )
 
-// BuildWebhookCertInfoWithCSR
+// BuildWebhookCertInfoWithCSR build Cert with CertificateSigningRequests
 // 1. submitCSR
 // 2. approveCSR
 // 3. readSignedCertificate
@@ -39,7 +39,6 @@ var (
 //     resources: ["signers"]
 //     resourceNames: ["kubernetes.io/kubelet-serving"]
 //     verbs: ["approve"]
-
 func BuildWebhookCertInfoWithCSR(client api.MingleClient, svcOpts *selfsigned.CertOptions) (*CertInfo, error) {
 	caBundle, err := readCABundle(client)
 	if err != nil {
