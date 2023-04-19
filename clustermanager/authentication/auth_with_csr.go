@@ -5,6 +5,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/symcn/api"
@@ -28,6 +29,11 @@ var (
 // 2. approveCSR
 // 3. readSignedCertificate
 func BuildWebhookCertInfoWithCSR(client api.MingleClient, svcOpts *selfsigned.CertOptions) (*CertInfo, error) {
+	caBundle, err := readCABundle(client)
+	if err != nil {
+		return nil, err
+	}
+
 	// build svc csr
 	svcSigner, err := selfsigned.NewSelfSigner()
 	if err != nil {
@@ -54,7 +60,7 @@ func BuildWebhookCertInfoWithCSR(client api.MingleClient, svcOpts *selfsigned.Ce
 	}
 
 	return &CertInfo{
-		CABundle: readCABundle(client),
+		CABundle: caBundle,
 		TLSKey:   svcSigner.PrivateKey(),
 		TLSCert:  signedCert,
 	}, nil
@@ -155,8 +161,20 @@ func readSignedCertificate(client api.MingleClient, csrName string) (signedCert 
 
 // readCABundle read from rest.Config or defaultCACertPath
 // const defaultCACertPath = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-func readCABundle(client api.MingleClient) (caBundle []byte) {
-	return client.GetKubeRestConfig().CAData
+func readCABundle(client api.MingleClient) (caBundle []byte, err error) {
+	if len(client.GetKubeRestConfig().CAData) != 0 {
+		return client.GetKubeRestConfig().CAData, nil
+	}
+
+	if len(client.GetKubeRestConfig().CAFile) != 0 {
+		b, err := os.ReadFile(client.GetKubeRestConfig().CAFile)
+		if err != nil {
+			return nil, err
+		}
+		return b, nil
+	}
+
+	return nil, errors.New("not found CABundle with rest.Config's CAData and CAFile")
 }
 
 func buildCSRName() string {
