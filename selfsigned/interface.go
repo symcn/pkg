@@ -18,6 +18,7 @@ type Signer interface {
 
 // CertOptions contains options for generating a new certificate.
 type CertOptions struct {
-	CommonName string
-	DNSNames   []string
+	Organization []string
+	CommonName   string
+	DNSNames     []string
 }

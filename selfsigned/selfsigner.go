@@ -38,14 +38,15 @@ func NewSelfSigner() (Signer, error) {
 
 // PrivateKey implements authentication.Signer
 func (s *signer) PrivateKey() []byte {
-	return encodePemPrivKey(s.privKey)
+	return EncodePemPrivKey(s.privKey)
 }
 
 // GenCSR implements authentication.Signer
 func (s *signer) GenCSR(opts *CertOptions) (csrRaw []byte, err error) {
 	tmpl := &x509.CertificateRequest{
 		Subject: pkix.Name{
-			CommonName: opts.CommonName,
+			Organization: opts.Organization,
+			CommonName:   opts.CommonName,
 		},
 		DNSNames:           opts.DNSNames,
 		SignatureAlgorithm: sigType(s.privKey),
@@ -59,7 +60,7 @@ func (s *signer) GenCSR(opts *CertOptions) (csrRaw []byte, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("parse CertificateRequest failed: %+v", err)
 	}
-	return encodePemCSRWithRaw(csrRaw), nil
+	return EncodePemCSRWithRaw(csrRaw), nil
 }
 
 // GenCert implements authentication.Signer
@@ -68,7 +69,8 @@ func (s *signer) GenCert(opts *CertOptions) (certRaw []byte, err error) {
 	tmpl := &x509.Certificate{
 		SerialNumber: new(big.Int).SetInt64(0),
 		Subject: pkix.Name{
-			CommonName: opts.CommonName,
+			Organization: opts.Organization,
+			CommonName:   opts.CommonName,
 		},
 		DNSNames:              opts.DNSNames,
 		NotBefore:             now.UTC(),
@@ -86,7 +88,7 @@ func (s *signer) GenCert(opts *CertOptions) (certRaw []byte, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("parse Certificate failed: %+v", err)
 	}
-	return encodePemCertWithRaw(certRaw), nil
+	return EncodePemCertWithRaw(certRaw), nil
 }
 
 // Sign implements authentication.Signer
@@ -96,6 +98,9 @@ func (s *signer) Sign(csrRaw []byte, expireTime time.Duration) (certRaw []byte, 
 	}
 
 	p, _ := pem.Decode(csrRaw)
+	if p == nil {
+		return nil, fmt.Errorf("invalid PEM encoded certificate")
+	}
 	csr, err := x509.ParseCertificateRequest(p.Bytes)
 	if err != nil {
 		return nil, fmt.Errorf("parse CSR(%s) failed: %+v", string(csrRaw), err)
@@ -127,7 +132,7 @@ func (s *signer) Sign(csrRaw []byte, expireTime time.Duration) (certRaw []byte, 
 	if err != nil {
 		return nil, fmt.Errorf("sign Certificate failed: %+v", err)
 	}
-	return encodePemCertWithRaw(certRaw), nil
+	return EncodePemCertWithRaw(certRaw), nil
 }
 
 func sigType(privateKey interface{}) x509.SignatureAlgorithm {

@@ -15,7 +15,7 @@ const (
 	PrivateKeyBlockType = "PRIVATE KEY"
 )
 
-func encodePemPrivKey(privateKey crypto.Signer) []byte {
+func EncodePemPrivKey(privateKey crypto.Signer) []byte {
 	rawKeyData, err := x509.MarshalPKCS8PrivateKey(privateKey)
 	if err != nil {
 		panic(err)
@@ -27,29 +27,29 @@ func encodePemPrivKey(privateKey crypto.Signer) []byte {
 	})
 }
 
-func encodePemCert(cert *x509.Certificate) []byte {
+func EncodePemCert(cert *x509.Certificate) []byte {
 	return pem.EncodeToMemory(&pem.Block{
 		Type:  CertificateBlockType,
 		Bytes: cert.Raw,
 	})
 }
 
-func encodePemCSR(csr *x509.CertificateRequest) []byte {
+func EncodePemCSR(csr *x509.CertificateRequest) []byte {
 	return pem.EncodeToMemory(&pem.Block{
 		Type:  CertificateRequestBlockType,
 		Bytes: csr.Raw,
 	})
 }
 
-func encodePemPrivKeyWithRaw(raw []byte) []byte {
+func EncodePemPrivKeyWithRaw(raw []byte) []byte {
 	return encodePemWithRaw(PrivateKeyBlockType, raw)
 }
 
-func encodePemCertWithRaw(raw []byte) []byte {
+func EncodePemCertWithRaw(raw []byte) []byte {
 	return encodePemWithRaw(CertificateBlockType, raw)
 }
 
-func encodePemCSRWithRaw(raw []byte) []byte {
+func EncodePemCSRWithRaw(raw []byte) []byte {
 	return encodePemWithRaw(CertificateRequestBlockType, raw)
 }
 
