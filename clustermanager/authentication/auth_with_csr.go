@@ -28,6 +28,18 @@ var (
 // 1. submitCSR
 // 2. approveCSR
 // 3. readSignedCertificate
+// This way may use those rules:
+//   - apiGroups: ["certificates.k8s.io"]
+//     resources: ["certificatesigningrequests"]
+//     verbs: ["create", "get", "watch"]
+//   - apiGroups: ["certificates.k8s.io"]
+//     resources: ["certificatesigningrequests/approval"]
+//     verbs: ["update"]
+//   - apiGroups: ["certificates.k8s.io"]
+//     resources: ["signers"]
+//     resourceNames: ["kubernetes.io/kubelet-serving"]
+//     verbs: ["approve"]
+
 func BuildWebhookCertInfoWithCSR(client api.MingleClient, svcOpts *selfsigned.CertOptions) (*CertInfo, error) {
 	caBundle, err := readCABundle(client)
 	if err != nil {
