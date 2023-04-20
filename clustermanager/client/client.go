@@ -7,9 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/go-logr/zapr"
 	"github.com/symcn/api"
-	"go.uber.org/zap"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -18,6 +16,7 @@ import (
 	controllers "sigs.k8s.io/controller-runtime"
 	rtcache "sigs.k8s.io/controller-runtime/pkg/cache"
 	rtclient "sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	rtmanager "sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
@@ -98,11 +97,7 @@ func (c *client) preCheck() error {
 
 	// set Logger
 	if c.Logger.GetSink() == nil {
-		zapLog, err := zap.NewDevelopment()
-		if err != nil {
-			panic(fmt.Sprintf("who watches the watchmen (%v)?", err))
-		}
-		c.Logger = zapr.NewLogger(zapLog)
+		c.Logger = zap.New(zap.UseDevMode(c.LoggerDevMode))
 	}
 
 	return nil

@@ -42,6 +42,7 @@ type Options struct {
 
 	Scheme                  *runtime.Scheme
 	Logger                  logr.Logger
+	LoggerDevMode           bool
 	LeaderElection          bool
 	LeaderElectionNamespace string
 	LeaderElectionID        string
@@ -165,6 +166,7 @@ func DefaultOptions() *Options {
 	clientgoscheme.AddToScheme(scheme)
 	return &Options{
 		Scheme:              scheme,
+		LoggerDevMode:       true,
 		LeaderElection:      false,
 		SyncPeriod:          defaultSyncPeriod,
 		HealthCheckInterval: defaultHealthCheckInterval,
