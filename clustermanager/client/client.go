@@ -7,7 +7,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/go-logr/zapr"
 	"github.com/symcn/api"
+	"go.uber.org/zap"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -94,6 +96,15 @@ func (c *client) preCheck() error {
 		})
 	}
 
+	// set Logger
+	if c.Logger.GetSink() == nil {
+		zapLog, err := zap.NewDevelopment()
+		if err != nil {
+			panic(fmt.Sprintf("who watches the watchmen (%v)?", err))
+		}
+		c.Logger = zapr.NewLogger(zapLog)
+	}
+
 	return nil
 }
 
@@ -126,6 +137,7 @@ func (c *client) initialization() error {
 		LeaderElectionID:        c.LeaderElectionID,
 		MetricsBindAddress:      "0",
 		HealthProbeBindAddress:  "0",
+		Logger:                  c.Logger,
 
 		// webhook configuration
 		// TODO: expose most field.

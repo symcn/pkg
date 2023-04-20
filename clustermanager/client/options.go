@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"time"
 
+	"github.com/go-logr/logr"
 	"github.com/symcn/api"
 	"github.com/symcn/pkg/clustermanager/configuration"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -40,6 +41,7 @@ type Options struct {
 	WebhookOptions
 
 	Scheme                  *runtime.Scheme
+	Logger                  logr.Logger
 	LeaderElection          bool
 	LeaderElectionNamespace string
 	LeaderElectionID        string
