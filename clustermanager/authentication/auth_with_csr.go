@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/symcn/api"
@@ -25,9 +26,13 @@ var (
 )
 
 // BuildWebhookCertInfoWithCSR build Cert with CertificateSigningRequests
-// 1. submitCSR
-// 2. approveCSR
-// 3. readSignedCertificate
+//  1. completedSVCOption: completed svcOpts with Organization and CommonName
+//     Organization: must have "system:nodes"
+//     CommonName: must start with "system:node:", default is "system:node:symcn-webhook"
+//  2. submitCSR
+//  3. approveCSR
+//  4. readSignedCertificate
+//
 // This way may use those rules:
 //   - apiGroups: ["certificates.k8s.io"]
 //     resources: ["certificatesigningrequests"]
@@ -44,6 +49,9 @@ func BuildWebhookCertInfoWithCSR(client api.MingleClient, svcOpts *selfsigned.Ce
 	if err != nil {
 		return nil, err
 	}
+
+	// completed svc CertOptions
+	completedSVCOption(svcOpts)
 
 	// build svc csr
 	svcSigner, err := selfsigned.NewSelfSigner()
@@ -75,6 +83,31 @@ func BuildWebhookCertInfoWithCSR(client api.MingleClient, svcOpts *selfsigned.Ce
 		TLSKey:   svcSigner.PrivateKey(),
 		TLSCert:  signedCert,
 	}, nil
+}
+
+func completedSVCOption(opt *selfsigned.CertOptions) {
+	var through bool
+	// subject organization is not system:nodes
+	for _, org := range opt.Organization {
+		if org == CSRBaseOrganization {
+			through = true
+			break
+		}
+	}
+	if !through {
+		if len(opt.Organization) == 0 {
+			opt.Organization = []string{}
+		}
+		opt.Organization = append(opt.Organization, CSRBaseOrganization)
+	}
+
+	// subject common name does not begin with system:node:
+	if !strings.HasPrefix(opt.CommonName, CSRCommonNamePrefix) {
+		if opt.CommonName == "" {
+			opt.CommonName = "symcn-webhook"
+		}
+		opt.CommonName = fmt.Sprintf("%s%s", CSRCommonNamePrefix, opt.CommonName)
+	}
 }
 
 func submitCSR(client api.MingleClient, csrRaw []byte) (csrName string, err error) {

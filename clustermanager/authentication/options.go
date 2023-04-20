@@ -25,6 +25,9 @@ type SignedWay string
 var (
 	SelfSigned SignedWay = "SelfSigned"
 	CSRSigned  SignedWay = "CSRSigned"
+
+	CSRBaseOrganization = "system:nodes"
+	CSRCommonNamePrefix = "system:node:"
 )
 
 // SaveTLSToDir save TLSKey and TLSCert to path

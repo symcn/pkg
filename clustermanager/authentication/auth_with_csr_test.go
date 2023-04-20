@@ -18,11 +18,7 @@ func TestNewBuildWebhookCertInfoWithCSR(t *testing.T) {
 	}
 
 	certInfo, err := BuildWebhookCertInfoWithCSR(cli, &selfsigned.CertOptions{
-		// subject organization is not system:nodes
-		Organization: []string{"system:nodes"},
-		// subject common name does not begin with system:node:
-		CommonName: "system:node:symcn-webhook",
-		DNSNames:   []string{"sym-control-webhook.sym-admin.svc"},
+		DNSNames: []string{"sym-control-webhook.sym-admin.svc"},
 	})
 	if err != nil {
 		t.Error(err)
