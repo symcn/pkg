@@ -67,12 +67,18 @@ func (ci *CertInfo) UpdateCABundleToMutatingWebhook(client api.MingleClient, mut
 
 	var change = 0
 	for i := range mutating.Webhooks {
-		if mutating.Webhooks[i].ClientConfig.Service.Namespace == svcNamespace &&
+		if mutating.Webhooks[i].ClientConfig.Service == nil {
+
+			mutating.Webhooks[i].ClientConfig.CABundle = ci.CABundle
+			change++
+			klog.V(4).Infof("modifiy MutatingWebhookConfigurations (%s) webhook's %s caBundle without ClientConfig.Service", mutatingName, mutating.Webhooks[i].Name)
+
+		} else if mutating.Webhooks[i].ClientConfig.Service.Namespace == svcNamespace &&
 			mutating.Webhooks[i].ClientConfig.Service.Name == svcName {
 
 			mutating.Webhooks[i].ClientConfig.CABundle = ci.CABundle
-			klog.V(4).Infof("modifiy MutatingWebhookConfigurations (%s) webhook's %s caBundle.", mutatingName, mutating.Webhooks[i].Name)
 			change++
+			klog.V(4).Infof("modifiy MutatingWebhookConfigurations (%s) webhook's %s caBundle.", mutatingName, mutating.Webhooks[i].Name)
 		}
 	}
 	if change == 0 {
