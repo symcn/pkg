@@ -131,13 +131,13 @@ func (c *client) initialization() error {
 	// Step 4. build controller-runtime manager
 	c.ctrlRtManager, err = controllers.NewManager(c.kubeRestConfig, rtmanager.Options{
 		Scheme:                  c.Scheme,
+		Logger:                  c.Logger,
 		SyncPeriod:              &c.SyncPeriod,
 		LeaderElection:          c.LeaderElection,
 		LeaderElectionNamespace: c.LeaderElectionNamespace,
 		LeaderElectionID:        c.LeaderElectionID,
 		MetricsBindAddress:      "0",
 		HealthProbeBindAddress:  "0",
-		Logger:                  c.Logger,
 
 		// webhook configuration
 		// TODO: expose most field.
