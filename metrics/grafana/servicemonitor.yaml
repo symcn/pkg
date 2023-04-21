@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: resource-record
+  namespace: default
+spec:
+  endpoints:
+  - metricRelabelings:
+    - action: labeldrop
+      regex: namespace
+    - action: labeldrop
+      regex: pod
+    - action: labeldrop
+      regex: instance
+    - action: labeldrop
+      regex: service
+    - action: labeldrop
+      regex: endpoint
+    path: /metrics
+    port: http
+  namespaceSelector:
+    matchNames:
+    - default
+  selector:
+    matchLabels:
+      app: symcn-control
