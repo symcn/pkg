@@ -16,7 +16,6 @@ import (
 	controllers "sigs.k8s.io/controller-runtime"
 	rtcache "sigs.k8s.io/controller-runtime/pkg/cache"
 	rtclient "sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	rtmanager "sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
@@ -97,7 +96,7 @@ func (c *client) preCheck() error {
 
 	// set Logger
 	if c.Logger.GetSink() == nil {
-		c.Logger = zap.New(zap.UseDevMode(c.LoggerDevMode))
+		c.Logger = klog.Background()
 	}
 
 	return nil

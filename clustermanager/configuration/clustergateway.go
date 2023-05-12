@@ -48,7 +48,6 @@ func (cg *cfgWithClusterGateway) GetAll() ([]api.ClusterCfgInfo, error) {
 		if err == nil {
 			cfgList = append(cfgList, BuildClusterCfgInfo(item.GetName(), cg.cfg.GetKubeConfigType(), cg.cfg.GetKubeConfig(), cg.cfg.GetKubeContext()))
 		}
-
 	}
 
 	cfgList = filterClusterInfo(cfgList, cg.filter)
