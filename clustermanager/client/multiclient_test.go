@@ -120,13 +120,13 @@ func TestNewMultiClient(t *testing.T) {
 
 func TestAutoRebuild(t *testing.T) {
 
-	activeClientIndex := []int{}
+	activeClientIndex := map[string]string{}
 
 	cfgManager := &configuration.FakeConfiguration{
 		GetAllFunc: func() ([]api.ClusterCfgInfo, error) {
 			clusterCfgList := []api.ClusterCfgInfo{}
-			for _, i := range activeClientIndex {
-				clusterCfgList = append(clusterCfgList, configuration.NewFakeClusterCfgInfo("", api.KubeConfigTypeRawString, "", fmt.Sprintf("cluster-%d", i)))
+			for i, raw := range activeClientIndex {
+				clusterCfgList = append(clusterCfgList, configuration.NewFakeClusterCfgInfo(raw, api.KubeConfigTypeRawString, "", fmt.Sprintf("cluster-%s", i)))
 			}
 			return clusterCfgList, nil
 		},
@@ -149,28 +149,54 @@ func TestAutoRebuild(t *testing.T) {
 
 	go mc.Start(ctx)
 
-	activeClientIndex = []int{1, 2, 3}
+	activeClientIndex = map[string]string{
+		"1": "1",
+		"2": "2",
+		"3": "3",
+	}
 	time.Sleep(time.Second * 5)
 	if len(mc.MingleClientMap) != 3 {
 		t.Errorf("current client should be %d, but got %d", 3, len(mc.MingleClientMap))
 		return
 	}
 
-	activeClientIndex = []int{1, 3}
+	activeClientIndex = map[string]string{
+		"1": "1",
+		"3": "3",
+	}
 	time.Sleep(time.Second * 5)
 	if len(mc.MingleClientMap) != 2 {
 		t.Errorf("current client should be %d, but got %d", 2, len(mc.MingleClientMap))
 		return
 	}
 
-	activeClientIndex = []int{1, 3, 5}
+	activeClientIndex = map[string]string{
+		"1": "1",
+		"3": "3",
+		"5": "5",
+	}
 	time.Sleep(time.Second * 5)
 	if len(mc.MingleClientMap) != 3 {
 		t.Errorf("current client should be %d, but got %d", 3, len(mc.MingleClientMap))
 		return
 	}
 
-	activeClientIndex = []int{1, 3, 6}
+	activeClientIndex = map[string]string{
+		"1": "1",
+		"3": "3",
+		"6": "6",
+	}
+	time.Sleep(time.Second * 5)
+	if len(mc.MingleClientMap) != 3 {
+		t.Errorf("current client should be %d, but got %d", 3, len(mc.MingleClientMap))
+		return
+	}
+
+	activeClientIndex = map[string]string{
+		"1": "1",
+		"3": "3",
+		"6": "666",
+	}
 	time.Sleep(time.Second * 5)
 	if len(mc.MingleClientMap) != 3 {
 		t.Errorf("current client should be %d, but got %d", 3, len(mc.MingleClientMap))
