@@ -154,8 +154,15 @@ func (c *client) autoHealthCheck() {
 	clusterHealthCheckOnce := func() {
 		ok, err := healthRequestWithTimeout(c.kubeInterface.Discovery().RESTClient(), c.ExecTimeout)
 		if err != nil {
-			klog.Errorf("cluster %s check healthy failed %+v", c.clusterCfg.GetName(), err)
+			klog.Errorf("cluster %s health check failed %+v", c.clusterCfg.GetName(), err)
 		}
+
+		if !c.connected && ok {
+			// Health check success and not connected will print this.
+			// It will only be printed the first time and when the check is restored.
+			klog.Infof("cluster %s health check successed.", c.clusterCfg.GetName())
+		}
+
 		c.connected = ok
 	}
 
@@ -164,7 +171,7 @@ func (c *client) autoHealthCheck() {
 
 	// it will pointless when interval less than 1s
 	if c.HealthCheckInterval < time.Second {
-		klog.Warningf("cluster %s not enabled healthy check, interval must be greater than 1s")
+		klog.Warningf("cluster %s not enabled health check, interval must be greater than 1s")
 		return
 	}
 
