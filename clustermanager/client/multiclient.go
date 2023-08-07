@@ -162,6 +162,8 @@ func (mc *multiClient) buildNewCluster(newClsInfo api.ClusterCfgInfo, options *O
 	// start new client
 	err = start(mc.ctx, cli, mc.BeforStartHandleList)
 	if err != nil {
+		// clear client resources
+		cli.Stop()
 		return nil, err
 	}
 
