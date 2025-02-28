@@ -68,7 +68,7 @@ func (ci *CertInfo) UpdateCABundleToMutatingWebhook(client api.MingleClient, mut
 		return err
 	}
 
-	var change = 0
+	change := 0
 	for i := range mutating.Webhooks {
 		if mutating.Webhooks[i].ClientConfig.Service == nil {
 
@@ -99,5 +99,54 @@ func (ci *CertInfo) UpdateCABundleToMutatingWebhook(client api.MingleClient, mut
 	}
 
 	klog.InfoS("update MutatingWebhookName success.", "name", mutatingName, "update webhook count", change)
+	return nil
+}
+
+// UpdateCABundleToValidatingWebhook update CABundle to ValidatingWebhookConfigurations
+// use this way need those rules:
+//   - apiGroups: ["admissionregistration.k8s.io"]
+//     resources: ["validatinggwebhookconfigurations"]
+//     verbs: ["get", "update"]
+func (ci *CertInfo) UpdateCABundleToValidatingWebhook(client api.MingleClient, validatingName, svcName, svcNamespace string) error {
+	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*5)
+	defer cancel()
+
+	// update validatingwebhookconfiguration caBundle
+	validatingClient := client.GetKubeInterface().AdmissionregistrationV1().ValidatingWebhookConfigurations()
+	validating, err := validatingClient.Get(ctx, validatingName, metav1.GetOptions{})
+	if err != nil {
+		klog.ErrorS(err, "get ValidatingWebhookConfigurations failed", "name", validating)
+		return err
+	}
+
+	change := 0
+	for i := range validating.Webhooks {
+		if validating.Webhooks[i].ClientConfig.Service == nil {
+			validating.Webhooks[i].ClientConfig.CABundle = ci.CABundle
+			change++
+			klog.V(4).Infof("modifiy ValidatingWebhookConfigurations (%s) webhook's %s caBundle without ClientConfig.Service", validatingName, validating.Webhooks[i].Name)
+
+		} else if validating.Webhooks[i].ClientConfig.Service.Namespace == svcNamespace &&
+			validating.Webhooks[i].ClientConfig.Service.Name == svcName {
+			validating.Webhooks[i].ClientConfig.CABundle = ci.CABundle
+			change++
+			klog.V(4).Infof("modifiy ValidatingWebhookConfigurations (%s) webhook's %s caBundle.", validatingName, validating.Webhooks[i].Name)
+		}
+	}
+	if change == 0 {
+		return fmt.Errorf("not found ValidatingWebhookConfigurations (%s) match svc(%s/%s) info",
+			validatingName,
+			svcNamespace,
+			svcName,
+		)
+	}
+
+	_, err = validatingClient.Update(ctx, validating, metav1.UpdateOptions{})
+	if err != nil {
+		klog.ErrorS(err, "update ValidatingWebhookConfigurations failed", "name", validatingName)
+		return err
+	}
+
+	klog.InfoS("update ValidatingWebhookName success.", "name", validatingName, "update webhook count", change)
 	return nil
 }
